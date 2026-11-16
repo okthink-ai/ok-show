@@ -168,6 +168,83 @@ describe('translation service', () => {
     owner.close(); viewer.close();
   });
 
+  it('drops overloaded audio and keeps the translation run listening', async () => {
+    let delivered = 0;
+    let closed = 0;
+    const adapter = {
+      sampleRate: 24000,
+      chunkDurationMs: 200,
+      async connect(_config: unknown, emit: (event: object) => void) {
+        return {
+          sendAudio() {
+            delivered += 1;
+            emit({ type: 'translation', text: `accepted ${delivered}`, stability: 'streaming' });
+            return true;
+          },
+          async finish() {},
+          close() { closed += 1; },
+        };
+      },
+    };
+    const { url } = await serverFor(adapter);
+    const owner = await connect(`${url}/translation-sync`);
+    await authenticate(owner);
+    const readyMessage = until(owner, 'translation.ready');
+    owner.send(JSON.stringify({ type: 'translation.start', version: 1, config: { backend: 'openai-realtime', sourceLanguage: 'en', targetLanguage: 'es' } }));
+    const ready = await readyMessage;
+    const audio = Buffer.alloc(9600).toString('base64');
+    for (let index = 0; index < 6; index += 1) {
+      owner.send(JSON.stringify({ type: 'translation.audio', version: 1, runId: ready.runId, audio }));
+    }
+    await until(owner, 'translation.caption');
+    expect(delivered).toBe(5);
+    expect(closed).toBe(0);
+
+    await new Promise((resolve) => setTimeout(resolve, 1_050));
+    const recoveredCaption = until(owner, 'translation.caption');
+    owner.send(JSON.stringify({ type: 'translation.audio', version: 1, runId: ready.runId, audio }));
+    await expect(recoveredCaption).resolves.toMatchObject({ translatedText: 'accepted 6' });
+    expect(closed).toBe(0);
+
+    const idle = untilPhase(owner, 'idle');
+    owner.send(JSON.stringify({ type: 'translation.stop', version: 1, runId: ready.runId }));
+    await idle;
+    owner.close();
+  });
+
+  it('treats provider backpressure as a dropped chunk instead of a failed run', async () => {
+    let attempts = 0;
+    const adapter = {
+      sampleRate: 24000,
+      chunkDurationMs: 200,
+      async connect(_config: unknown, emit: (event: object) => void) {
+        return {
+          sendAudio() {
+            attempts += 1;
+            if (attempts === 1) return false;
+            emit({ type: 'translation', text: 'still listening', stability: 'streaming' });
+            return true;
+          },
+          async finish() {},
+          close() {},
+        };
+      },
+    };
+    const { url } = await serverFor(adapter);
+    const owner = await connect(`${url}/translation-sync`);
+    await authenticate(owner);
+    const readyMessage = until(owner, 'translation.ready');
+    owner.send(JSON.stringify({ type: 'translation.start', version: 1, config: { backend: 'openai-realtime', sourceLanguage: 'en', targetLanguage: 'es' } }));
+    const ready = await readyMessage;
+    const audio = Buffer.alloc(9600).toString('base64');
+    owner.send(JSON.stringify({ type: 'translation.audio', version: 1, runId: ready.runId, audio }));
+    const caption = until(owner, 'translation.caption');
+    owner.send(JSON.stringify({ type: 'translation.audio', version: 1, runId: ready.runId, audio }));
+    await expect(caption).resolves.toMatchObject({ translatedText: 'still listening' });
+    expect(attempts).toBe(2);
+    owner.close();
+  });
+
   it('dispatches only explicit WebSocket paths', async () => {
     const { url } = await serverFor();
     await expect(connect(`${url}/not-a-service`)).rejects.toThrow('Unexpected server response: 404');
@@ -190,7 +267,17 @@ describe('translation service', () => {
     owner.close();
     await expect(failed).resolves.toMatchObject({ code: 'producer_disconnected' });
     await expect(cleared).resolves.toMatchObject({ reason: 'producer_disconnected' });
-    viewer.close();
+
+    const returning = await connect(`${url}/translation-sync`);
+    const returningCapabilities = until(returning, 'translation.capabilities');
+    const returningIdle = untilPhase(returning, 'idle');
+    joinTranslation(returning);
+    await returningCapabilities;
+    await expect(returningIdle).resolves.toMatchObject({ phase: 'idle' });
+    const restarted = until(returning, 'translation.ready');
+    returning.send(JSON.stringify({ type: 'translation.start', version: 1, config: { backend: 'openai-realtime', sourceLanguage: 'en', targetLanguage: 'es' } }));
+    await expect(restarted).resolves.toMatchObject({ sampleRate: 24000 });
+    returning.close(); viewer.close();
   });
 
   it('reports a distinct finalization timeout and releases ownership for restart', async () => {

@@ -46,7 +46,6 @@ export function createSocketReadyPromise(socket, { timeoutMs, signal, configure,
 
 export function sendJson(socket, message) {
   if (socket.readyState !== WebSocket.OPEN) throw new Error('Translation provider is not connected.');
-  if (socket.bufferedAmount > 96_000) throw Object.assign(new Error('Translation provider audio queue is full.'), { code: 'queue_pressure' });
   socket.send(JSON.stringify(message));
 }
 

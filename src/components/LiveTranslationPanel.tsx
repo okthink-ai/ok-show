@@ -34,7 +34,7 @@ const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact 
     targetLanguage,
   } : null;
   const setupMessage = !runtime.connected
-    ? 'Open the tokenized deck or presenter link printed by ok-show dev.'
+    ? active ? '' : 'Open the tokenized deck or presenter link printed by ok-show dev.'
     : !preferences.backend
       ? 'Choose a configured provider.'
       : capability && !capability.configured

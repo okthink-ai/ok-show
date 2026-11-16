@@ -30,10 +30,13 @@ fallback. ElevenLabs enterprise realtime additionally needs entitlement,
 
 Microphone access from another device needs HTTPS (localhost is the normal
 development exception). Provider translation can be billable, including
-audio output that ok-show discards. Stop drains final output and retains it
-for eight seconds; Clear removes it immediately. Captions and audio are not
-persisted. This is a live authoring feature only: `npm run build`, public
-hosting, and PDF export contain no translation controls or credentials.
+audio output that ok-show discards. Once started, translation remains active
+until Stop: transient congestion drops stale audio to stay current, and
+temporary connection/provider failures reconnect automatically. Stop drains
+final output and retains it for eight seconds; Clear removes it immediately.
+Captions and audio are not persisted. This is a live authoring feature only:
+`npm run build`, public hosting, and PDF export contain no translation controls
+or credentials.
 
 ## Updating the engine
 

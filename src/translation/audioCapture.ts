@@ -81,7 +81,7 @@ export class StreamingPcm16Encoder {
   }
 }
 
-/** Delivers chunks at capture cadence and bounds catch-up audio to one second. */
+/** Delivers chunks at capture cadence and keeps only the freshest second of audio. */
 export class RealtimeChunkPacer {
   private readonly queue: Uint8Array[] = [];
   private readonly chunkDurationMs: number;
@@ -102,10 +102,11 @@ export class RealtimeChunkPacer {
   }
 
   enqueue(chunk: Uint8Array): boolean {
-    if (this.queue.length >= this.maximumQueuedChunks) return false;
+    const dropped = this.queue.length >= this.maximumQueuedChunks;
+    if (dropped) this.queue.shift();
     this.queue.push(chunk);
     this.schedule();
-    return true;
+    return !dropped;
   }
 
   drain(): Promise<void> {

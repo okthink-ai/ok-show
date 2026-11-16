@@ -70,8 +70,9 @@ export function createElevenLabsRealtimeAdapter({ apiKey, voiceId, WebSocketImpl
       });
       return {
         sendAudio(pcm16) {
-          if (socket.bufferedAmount > 32_000) throw Object.assign(new Error('ElevenLabs audio queue is full.'), { code: 'queue_pressure' });
+          if (socket.bufferedAmount > 32_000) return false;
           sendJson(socket, { message_type: 'input_audio_chunk', audio_base_64: Buffer.from(pcm16).toString('base64') });
+          return true;
         },
         async finish() {
           sendJson(socket, { message_type: 'end_of_stream' });

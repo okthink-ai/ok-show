@@ -80,11 +80,15 @@ export function createElevenLabsScribeAdapter({ apiKey, WebSocketImpl = WebSocke
       });
       return {
         sendAudio(pcm16) {
-          if (socket.bufferedAmount > 32_000) throw Object.assign(new Error('ElevenLabs audio queue is full.'), { code: 'queue_pressure' });
+          if (socket.bufferedAmount > 32_000) {
+            pendingAudio = Buffer.from(pcm16);
+            return false;
+          }
           if (pendingAudio) {
             sendJson(socket, { message_type: 'input_audio_chunk', audio_base_64: Buffer.from(pendingAudio).toString('base64') });
           }
           pendingAudio = Buffer.from(pcm16);
+          return true;
         },
         async finish() {
           // Scribe commits the final buffered audio chunk; it does not define

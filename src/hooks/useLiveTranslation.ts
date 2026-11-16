@@ -10,6 +10,16 @@ import type { CaptionSnapshot, TranslationCapabilities, TranslationConfig, Trans
 const RECONNECT_MIN_MS = 500;
 const RECONNECT_MAX_MS = 4000;
 const HISTORY_LIMIT = 40;
+const FATAL_TRANSLATION_CODES = new Set([
+  'already_active',
+  'forbidden',
+  'invalid_api_key',
+  'invalid_audio',
+  'invalid_config',
+  'not_configured',
+  'provider_access',
+  'quota_or_billing',
+]);
 
 function translationServerUrl(location: Location = window.location): string {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -52,6 +62,10 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
   const pacerRef = useRef<RealtimeChunkPacer | null>(null);
   const startupRef = useRef<AbortController | null>(null);
   const runIdRef = useRef('');
+  const desiredConfigRef = useRef<TranslationConfig | null>(null);
+  const remoteStartPendingRef = useRef(false);
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const restartDelayRef = useRef(RECONNECT_MIN_MS);
   const sequenceRef = useRef(-1);
   const phaseRef = useRef<TranslationPhase>('idle');
   phaseRef.current = phase;
@@ -70,6 +84,27 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
     const socket = socketRef.current;
     if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
   }, []);
+
+  const clearRestart = useCallback(() => {
+    clearTimeout(restartTimerRef.current);
+    restartTimerRef.current = undefined;
+  }, []);
+
+  const requestRemoteStart = useCallback((delay = 0) => {
+    clearRestart();
+    const attempt = () => {
+      restartTimerRef.current = undefined;
+      const config = desiredConfigRef.current;
+      const socket = socketRef.current;
+      if (!config || remoteStartPendingRef.current || socket?.readyState !== WebSocket.OPEN) return;
+      remoteStartPendingRef.current = true;
+      setPhase('connecting');
+      setError('');
+      socket.send(JSON.stringify({ type: 'translation.start', version: 1, config }));
+    };
+    if (delay > 0) restartTimerRef.current = setTimeout(attempt, delay);
+    else attempt();
+  }, [clearRestart]);
 
   useEffect(() => {
     if (!enabled || !presentationId) {
@@ -99,6 +134,10 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
           setConnected(true);
           delay = RECONNECT_MIN_MS;
           if (!preferenceRef.current && message.defaultBackend) dispatch(setTranslationBackend(message.defaultBackend));
+          if (desiredConfigRef.current) {
+            remoteStartPendingRef.current = false;
+            requestRemoteStart();
+          }
           return;
         }
         if ('sessionId' in message && (message.sessionId !== sessionId || message.presentationId !== presentationId)) return;
@@ -106,20 +145,41 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
           if (message.runId) runIdRef.current = message.runId;
           setPhase(message.phase);
           if (message.phase === 'error') {
-            setError(message.message || 'Live translation stopped with an error.');
-            startupRef.current?.abort();
-            void stopCapture(false);
             runIdRef.current = '';
+            remoteStartPendingRef.current = false;
+            if (desiredConfigRef.current && !FATAL_TRANSLATION_CODES.has(message.code || '')) {
+              setPhase('connecting');
+              setError('');
+              setWarning('Translation is reconnecting. Current speech will resume as soon as the provider is ready.');
+              requestRemoteStart(restartDelayRef.current);
+              restartDelayRef.current = Math.min(restartDelayRef.current * 2, RECONNECT_MAX_MS);
+            } else {
+              desiredConfigRef.current = null;
+              clearRestart();
+              setError(message.message || 'Live translation stopped with an error.');
+              startupRef.current?.abort();
+              void stopCapture(false);
+            }
           } else if (message.phase === 'idle') {
             runIdRef.current = '';
-            void stopCapture(false);
+            remoteStartPendingRef.current = false;
+            if (!desiredConfigRef.current) void stopCapture(false);
+          } else if (message.phase === 'listening') {
+            restartDelayRef.current = RECONNECT_MIN_MS;
+            setError('');
+            setWarning('');
           }
           return;
         }
         if (message.type === 'translation.ready') {
           runIdRef.current = message.runId;
+          remoteStartPendingRef.current = false;
+          restartDelayRef.current = RECONNECT_MIN_MS;
           sequenceRef.current = -1;
+          setError('');
+          setWarning('');
           void captureRef.current?.start().catch((reason: unknown) => {
+            desiredConfigRef.current = null;
             setPhase('error');
             setError(reason instanceof Error ? reason.message : 'The microphone could not start.');
             socket.close();
@@ -146,6 +206,9 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
           return;
         }
         if (message.type === 'translation.error') {
+          desiredConfigRef.current = null;
+          remoteStartPendingRef.current = false;
+          clearRestart();
           setPhase('error');
           setError(message.message);
           startupRef.current?.abort();
@@ -158,11 +221,16 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
         socketRef.current = null;
         setConnected(false);
         setCapabilities(null);
-        startupRef.current?.abort();
-        void stopCapture(false);
-        if (phaseRef.current !== 'idle') {
-          setPhase('error');
-          setError('The live translation connection closed. Start again after it reconnects.');
+        remoteStartPendingRef.current = false;
+        clearRestart();
+        if (desiredConfigRef.current) {
+          setPhase('connecting');
+          setError('');
+          setWarning('Translation is reconnecting. Current speech will resume as soon as the connection is ready.');
+        } else {
+          startupRef.current?.abort();
+          void stopCapture(false);
+          if (phaseRef.current !== 'idle') setPhase('idle');
         }
         runIdRef.current = '';
         if (!disposed) {
@@ -175,6 +243,9 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
     return () => {
       disposed = true;
       clearTimeout(retry);
+      clearRestart();
+      desiredConfigRef.current = null;
+      remoteStartPendingRef.current = false;
       startupRef.current?.abort();
       startupRef.current = null;
       void stopCapture(false);
@@ -182,7 +253,7 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
       socketRef.current = null;
       runIdRef.current = '';
     };
-  }, [dispatch, enabled, presentationId, stopCapture]);
+  }, [clearRestart, dispatch, enabled, presentationId, requestRemoteStart, stopCapture]);
 
   const start = useCallback(async (config: TranslationConfig) => {
     if (!connected || !capabilities || phaseRef.current === 'connecting' || phaseRef.current === 'listening' || phaseRef.current === 'stopping') return;
@@ -206,13 +277,12 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
         Math.ceil(1000 / backend.chunkDurationMs),
         (chunk) => {
           const runId = runIdRef.current;
-          if (!runId || socket.readyState !== WebSocket.OPEN) return;
-          if (socket.bufferedAmount > backend.sampleRate * 2) {
-            setError('Audio upload could not keep up; translation was stopped instead of sending stale speech.');
-            socket.close();
-            return;
-          }
-          socket.send(JSON.stringify({ type: 'translation.audio', version: 1, runId, audio: encodeBase64(chunk) }));
+          const currentSocket = socketRef.current;
+          if (!runId || currentSocket?.readyState !== WebSocket.OPEN) return;
+          // Keep captions live rather than replaying old speech after a network
+          // stall. Capture continues and the next current chunk gets a chance.
+          if (currentSocket.bufferedAmount > backend.sampleRate * 2) return;
+          currentSocket.send(JSON.stringify({ type: 'translation.audio', version: 1, runId, audio: encodeBase64(chunk) }));
         },
       );
       pacerRef.current = pacer;
@@ -225,15 +295,13 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
         chunkDurationMs: backend.chunkDurationMs,
         signal: startup.signal,
         onDeviceEnded: () => {
+          desiredConfigRef.current = null;
+          remoteStartPendingRef.current = false;
+          clearRestart();
           setError('The microphone device disconnected.');
-          socket.close();
+          socketRef.current?.close();
         },
-        onChunk: (chunk) => {
-          if (!pacer.enqueue(chunk)) {
-            setError('Audio upload could not keep up; translation was stopped instead of sending stale speech.');
-            socket.close();
-          }
-        },
+        onChunk: (chunk) => { pacer.enqueue(chunk); },
       });
       if (startup.signal.aborted) {
         await capture.stop(false);
@@ -241,7 +309,9 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
         return;
       }
       captureRef.current = capture;
-      socket.send(JSON.stringify({ type: 'translation.start', version: 1, config }));
+      desiredConfigRef.current = config;
+      remoteStartPendingRef.current = false;
+      requestRemoteStart();
     } catch (reason) {
       if (startup.signal.aborted) return;
       setPhase('error');
@@ -251,9 +321,12 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
         : reason instanceof Error ? reason.message : 'The microphone could not be prepared.');
       await stopCapture(false);
     }
-  }, [capabilities, connected, stopCapture]);
+  }, [capabilities, clearRestart, connected, requestRemoteStart, stopCapture]);
 
   const stop = useCallback(async () => {
+    desiredConfigRef.current = null;
+    remoteStartPendingRef.current = false;
+    clearRestart();
     if (phaseRef.current === 'connecting' && !runIdRef.current) {
       startupRef.current?.abort();
       await stopCapture(false);
@@ -269,7 +342,7 @@ export function useLiveTranslation({ presentationId, enabled = true }: { present
     pacerRef.current?.clear();
     pacerRef.current = null;
     send({ type: 'translation.stop', version: 1, runId: runIdRef.current });
-  }, [send, stopCapture]);
+  }, [clearRestart, send, stopCapture]);
 
   const clear = useCallback(() => {
     send({ type: 'translation.clear', version: 1 });

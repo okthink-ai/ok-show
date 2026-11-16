@@ -446,11 +446,16 @@ returns identical-source edits out of order cannot be correlated perfectly.
 
 Start always requires an operator gesture. Only the microphone owner sends
 audio; other deck and presenter tabs receive caption snapshots for the same
-session and presentation. Stop flushes final microphone samples, waits up to
-15 seconds for provider output, and holds the last caption for eight seconds.
-Clear removes it immediately. Captions retain a 280-character display window
-and at most 40 settled preview entries; audio and transcript text are not
-written to `.speaker-sync/state.json` or default logs.
+session and presentation. After Start, translation stays active until the
+operator presses Stop. Browser, server, and provider queues stay bounded by
+dropping stale audio rather than replaying it late or ending the session;
+transient connection and provider failures reconnect automatically. Account,
+entitlement, configuration, and microphone-device failures still require the
+operator to fix the underlying problem. Stop flushes final microphone samples,
+waits up to 15 seconds for provider output, and holds the last caption for
+eight seconds. Clear removes it immediately. Captions retain a 280-character
+display window and at most 40 settled preview entries; audio and transcript
+text are not written to `.speaker-sync/state.json` or default logs.
 
 Remote-phone microphone access requires HTTPS; browsers generally exempt
 `localhost`, but not a LAN IP. Permission denial and device loss are

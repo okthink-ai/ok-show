@@ -98,6 +98,20 @@ export function createTranslationService({
   const clientMeta = new WeakMap();
   const sessions = new Map();
 
+  const noteAudioDrop = (run, reason) => {
+    run.droppedAudioChunks += 1;
+    const now = Date.now();
+    if (now - run.lastAudioDropLogAt < 5_000) return;
+    log('audio_dropped', {
+      backend: run.config.backend,
+      runId: run.id,
+      reason,
+      chunks: run.droppedAudioChunks,
+    });
+    run.droppedAudioChunks = 0;
+    run.lastAudioDropLogAt = now;
+  };
+
   const keyFor = (sessionId, presentationId) => `${sessionId}\u0000${presentationId}`;
   const sessionFor = (sessionId, presentationId) => {
     const key = keyFor(sessionId, presentationId);
@@ -221,7 +235,6 @@ export function createTranslationService({
     const localErrors = {
       finalization_timeout: 'Translation finalization timed out; the last words may be incomplete.',
       invalid_audio: 'The browser sent an invalid audio chunk. Translation was stopped safely.',
-      queue_pressure: 'Audio could not be delivered in real time. Translation was stopped instead of queueing stale speech.',
       invalid_api_key: 'The provider rejected its API key. Check the project .env and restart ok-show.',
       quota_or_billing: 'The provider rejected the request because of quota, billing, or rate limits.',
       provider_access: 'This account does not have access to the selected provider feature, model, or required terms.',
@@ -294,6 +307,8 @@ export function createTranslationService({
       firstCaptionAt: 0,
       rateWindowAt: Date.now(),
       audioBytes: 0,
+      droppedAudioChunks: 0,
+      lastAudioDropLogAt: 0,
     };
     state.producer = socket;
     state.run = run;
@@ -386,13 +401,19 @@ export function createTranslationService({
       if (now - run.rateWindowAt >= 1_000) { run.rateWindowAt = now; run.audioBytes = 0; }
       run.audioBytes += audio.length;
       if (run.audioBytes > run.adapter.sampleRate * 2 * MAX_AUDIO_SECONDS) {
-        return void failRun(state, run, { code: 'queue_pressure' });
+        noteAudioDrop(run, 'ingress_backpressure');
+        return;
       }
       if (!run.firstAudioAt) {
         run.firstAudioAt = now;
         log('first_audio', { backend: run.config.backend, runId: run.id, elapsedMs: now - run.startedAt });
       }
-      try { run.connection.sendAudio(audio); } catch (error) { void failRun(state, run, error); }
+      try {
+        if (run.connection.sendAudio(audio) === false) noteAudioDrop(run, 'provider_backpressure');
+      } catch (error) {
+        if (error?.code === 'queue_pressure') noteAudioDrop(run, 'provider_backpressure');
+        else void failRun(state, run, error);
+      }
     });
     socket.on('close', () => {
       clearTimeout(joinTimer);
@@ -405,6 +426,10 @@ export function createTranslationService({
         teardownRun(meta.state, run);
         status(meta.state, 'error', { code: 'producer_disconnected', message: 'The microphone tab disconnected.' });
         clearCaption(meta.state, 'producer_disconnected');
+        // Existing viewers learn that the producer dropped, while a returning
+        // producer joins a restartable idle session instead of inheriting the
+        // stale error state.
+        meta.state.status = 'idle';
       }
       if (!meta.state.clients.size && !meta.state.run && !meta.state.latest) sessions.delete(meta.state.key);
     });

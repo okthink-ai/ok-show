@@ -42,16 +42,16 @@ describe('StreamingPcm16Encoder', () => {
     expect([...chunks[0].slice(0, 4)]).toEqual([255, 127, 0, 128]);
   });
 
-  it('paces queued chunks and rejects more than one second of catch-up audio', async () => {
+  it('paces queued chunks and drops the oldest audio beyond one second', async () => {
     vi.useFakeTimers();
     const sent: number[] = [];
     const pacer = new RealtimeChunkPacer(200, 5, (chunk) => sent.push(chunk[0]));
     for (let value = 1; value <= 5; value += 1) expect(pacer.enqueue(Uint8Array.of(value))).toBe(true);
     expect(pacer.enqueue(Uint8Array.of(6))).toBe(false);
     await vi.advanceTimersByTimeAsync(0);
-    expect(sent).toEqual([1]);
+    expect(sent).toEqual([2]);
     await vi.advanceTimersByTimeAsync(800);
     await pacer.drain();
-    expect(sent).toEqual([1, 2, 3, 4, 5]);
+    expect(sent).toEqual([2, 3, 4, 5, 6]);
   });
 });

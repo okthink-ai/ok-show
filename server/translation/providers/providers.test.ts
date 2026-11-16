@@ -30,6 +30,12 @@ describe('translation provider normalization', () => {
     expect(JSON.parse(socket.sent[0])).toEqual({ type: 'session.update', session: { audio: { output: { language: 'es' } } } });
     message(socket, { type: 'session.updated', event_id: 'ready' });
     const connection = await connecting;
+    socket.bufferedAmount = 48_001;
+    expect(connection.sendAudio(Uint8Array.of(1, 2))).toBe(false);
+    const sentBeforeRecovery = socket.sent.length;
+    socket.bufferedAmount = 0;
+    expect(connection.sendAudio(Uint8Array.of(3, 4))).toBe(true);
+    expect(socket.sent).toHaveLength(sentBeforeRecovery + 1);
     for (const [index, delta] of ['Hola', ' ', 'mun', 'do', '.'].entries()) {
       message(socket, { type: 'session.output_transcript.delta', event_id: `delta-${index}`, elapsed_ms: 10, delta });
     }
@@ -60,6 +66,12 @@ describe('translation provider normalization', () => {
     socket.emit('open');
     message(socket, { message_type: 'status', status: 'started' });
     const connection = await connecting;
+    socket.bufferedAmount = 32_001;
+    expect(connection.sendAudio(Uint8Array.of(1, 2))).toBe(false);
+    const sentBeforeRecovery = socket.sent.length;
+    socket.bufferedAmount = 0;
+    expect(connection.sendAudio(Uint8Array.of(3, 4))).toBe(true);
+    expect(socket.sent).toHaveLength(sentBeforeRecovery + 1);
     message(socket, { message_type: 'partial_transcript', text: 'hello' });
     message(socket, { message_type: 'translation', text: 'Hola' });
     message(socket, { message_type: 'final_transcript', text: 'hello world' });
@@ -82,6 +94,10 @@ describe('translation provider normalization', () => {
     socket.emit('open');
     message(socket, { message_type: 'session_started' });
     const connection = await connecting;
+    socket.bufferedAmount = 32_001;
+    expect(connection.sendAudio(Uint8Array.of(1, 2))).toBe(false);
+    socket.bufferedAmount = 0;
+    expect(connection.sendAudio(Uint8Array.of(3, 4))).toBe(true);
     message(socket, { message_type: 'committed_transcript', text: 'first' });
     message(socket, { message_type: 'committed_transcript', text: 'second' });
     message(socket, { message_type: 'edited_transcript', text: 'second', edited_text: 'segundo' });

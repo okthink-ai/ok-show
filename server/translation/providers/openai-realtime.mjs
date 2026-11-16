@@ -62,8 +62,9 @@ export function createOpenAIRealtimeAdapter({ apiKey, WebSocketImpl = WebSocket,
       });
       return {
         sendAudio(pcm16) {
-          if (socket.bufferedAmount > 48_000) throw Object.assign(new Error('OpenAI audio queue is full.'), { code: 'queue_pressure' });
+          if (socket.bufferedAmount > 48_000) return false;
           sendJson(socket, { type: 'session.input_audio_buffer.append', audio: Buffer.from(pcm16).toString('base64') });
+          return true;
         },
         async finish() {
           sendJson(socket, { type: 'session.close' });
