@@ -17,6 +17,8 @@ import type { DeveloperToolRegistry } from './components/DeveloperToolsDrawer';
 import AnnotationBadge from './components/AnnotationBadge';
 import StyleTweaksSidebar from './components/StyleTweaksSidebar';
 import StyleTweakLayer from './components/StyleTweakLayer';
+import LiveCaptionOverlay from './components/LiveCaptionOverlay';
+import LiveTranslationPanel from './components/LiveTranslationPanel';
 import { useStyleTweakPicker } from './hooks/useStyleTweakPicker';
 import PendingAnnotationPopup from './components/PendingAnnotationPopup';
 import { useKeyboardNavigation, toggleFullscreen } from './hooks/useKeyboardNavigation';
@@ -62,6 +64,7 @@ import { commitAnnotation } from './store/annotationThunks';
 import { presentations } from './project/presentations';
 import type { PendingAnnotationDraft } from './types/annotation.types';
 import { getPresenterViewUrl, getSyncSession, isPresentationSyncRequested, usePresentationSync } from './sync/usePresentationSync';
+import { useLiveTranslation } from './hooks/useLiveTranslation';
 // Global styles (design-system.css, animations.css) are imported in main.tsx
 import './App.css';
 
@@ -179,6 +182,8 @@ function App() {
     theme,
     enabled: syncEnabled,
   });
+  const liveTranslation = useLiveTranslation({ presentationId: currentPresentationId, enabled: syncEnabled });
+  const translationPreferences = useAppSelector((state) => state.ui.translation);
   const syncSessionId = getSyncSession();
   const speakerNotesSync = usePresentationSync({
     dispatch,
@@ -339,6 +344,12 @@ function App() {
         />
       ),
     },
+    liveTranslation: {
+      id: 'liveTranslation',
+      icon: 'translate',
+      label: 'Live translation',
+      content: <LiveTranslationPanel runtime={liveTranslation} />,
+    },
     practice: {
       id: 'practice',
       icon: 'menu_book',
@@ -464,7 +475,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-app-surface="authoring">
       <div className={`app__content ${(debugMode || activeSidebar !== null) && !isMobile && !isFullscreen ? 'app__content--with-preview' : ''}`}>
         {!isFullscreen && activeSidebar && (
           <DeveloperToolsDrawer
@@ -488,6 +499,13 @@ function App() {
             aspectRatio={aspectRatio}
             currentSlide={safeSlide}
             onSlideChange={handleGoToSlide}
+            overlay={(
+              <LiveCaptionOverlay
+                caption={liveTranslation.caption}
+                visible={translationPreferences.captionsVisible}
+                fontSize={translationPreferences.captionFontSize}
+              />
+            )}
           />
         </div>
 

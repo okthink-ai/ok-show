@@ -412,6 +412,59 @@ To run two separate sessions (say, a rehearsal while someone else reviews),
 change `session=default` to another name in both links and keep the `token`
 the same.
 
+### Live translated captions
+
+The **Live translation** section in the developer tools and the compact panel
+on `/notes` can stream microphone audio to one provider and place translated
+English/Spanish captions over the running deck. Put credentials in the
+project's `.env` (copy `.env.example`), then restart `ok-show dev`:
+
+```dotenv
+# Either one is enough. Configure both only when operators need a choice.
+OPENAI_API_KEY=
+ELEVENLABS_API_KEY=
+OK_SHOW_TRANSLATION_PROVIDER=openai # optional: openai or elevenlabs
+
+# ElevenLabs enterprise realtime only:
+ELEVENLABS_ENTERPRISE_API_KEY=
+ELEVENLABS_TRANSLATION_VOICE_ID=
+```
+
+The CLI reads this file from the resolved project root, including when you use
+`--root` or launch the installed engine from another directory. Exported shell
+variables override `.env`; mode-specific Vite env files are also respected.
+
+OpenAI uses its dedicated realtime translation model. ElevenLabs “stable
+phrases” uses Scribe realtime transcript editing; edits can arrive out of
+order or be missing and cost more than transcription alone. ElevenLabs
+enterprise realtime needs both feature entitlement and a configured voice.
+Provider access, accepted terms, quota, and billing are checked when **Start**
+is pressed; ok-show never falls back to another account after an error.
+Scribe edit events identify their source text but not an unambiguous segment;
+ok-show queues repeated identical phrases in commit order, so a provider that
+returns identical-source edits out of order cannot be correlated perfectly.
+
+Start always requires an operator gesture. Only the microphone owner sends
+audio; other deck and presenter tabs receive caption snapshots for the same
+session and presentation. Stop flushes final microphone samples, waits up to
+15 seconds for provider output, and holds the last caption for eight seconds.
+Clear removes it immediately. Captions retain a 280-character display window
+and at most 40 settled preview entries; audio and transcript text are not
+written to `.speaker-sync/state.json` or default logs.
+
+Remote-phone microphone access requires HTTPS; browsers generally exempt
+`localhost`, but not a LAN IP. Permission denial and device loss are
+recoverable: fix browser access and press Start again. Native translation
+endpoints can generate and bill for audio even though ok-show discards all
+translated audio and plays none.
+
+Live translation exists only in the authoring runtime (`ok-show dev`, with
+the same service available through `ok-show sync`). Static `ok-show build`,
+PDF export, and the public presentation do not contain controls, captions,
+provider connections, histories, or credentials. For a manual provider smoke
+test, try both language directions, a long sentence, repeated phrases,
+silence, and final words immediately before Stop.
+
 ### Exporting a PDF
 
 Click the export button in the footer, or open `/export` (add
@@ -560,8 +613,9 @@ dependency.
 **`npm run dev` runs two things.** One is Vite, on port 5199 (or the next free
 port). The other is a small notes service on an internal port that loads each
 deck's `notes.mjs` and `sparkle.mjs` and keeps every open tab on the same
-slide over a WebSocket. Vite forwards `/speaker-sync` to it, so port 5199 is
-the only one you need.
+slide over a WebSocket. The same listener hosts the separately authenticated
+`/translation-sync` service. Vite forwards both paths, so port 5199 is the
+only public port you need.
 
 **The token keeps strangers off your deck.** The dev server listens on your
 network so your phone can reach it. That means anyone on the same Wi-Fi could

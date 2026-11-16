@@ -33,6 +33,7 @@ describe('ok-show init', () => {
     expect(output).toContain('Created an ok-show project in .tmp/init-package-test/kickoff-talk');
     expect(output).toContain('src/data/presentations/kickoff-talk/');
     expect(output).toMatch(/npm run dev/);
+    expect(readFileSync(join(PROJECT, '.env.example'), 'utf8')).toContain('OPENAI_API_KEY=');
   });
 
   it('builds the starter deck from the local templates without the built-in copies', () => {

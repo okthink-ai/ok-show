@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AspectRatio } from '../types/slide.types';
 import { isThemeId, type ThemeId } from '../themes';
 import type { PresenterTimerState } from '../utils/presenterTimer';
+import type { TranslationBackend, TranslationLanguage } from '../translation/protocol';
 
 export const THEME_STORAGE_KEY = 'ok-show-theme';
 export const PRESENTER_NEXT_KEY = 'speaker-notes-show-next';
@@ -12,6 +13,7 @@ export const PRESENTER_TALK_MINUTES_KEY = 'speaker-notes-talk-minutes';
 export const PRESENTER_PRESENTING_KEY = 'speaker-notes-presenting';
 export const PRESENTER_TIMER_KEY = 'speaker-notes-timer';
 export const NAV_HINT_SEEN_KEY = 'ok-show-nav-hint-seen';
+export const TRANSLATION_PREFERENCES_KEY = 'ok-show-translation-preferences';
 
 /** One reading size serves both the notes and the practice manuscript. */
 export const READING_SIZE_MIN = 16;
@@ -21,6 +23,41 @@ const DEFAULT_READING_SIZE = 22;
 export const TALK_MINUTES_MIN = 5;
 export const TALK_MINUTES_MAX = 180;
 const DEFAULT_TALK_MINUTES = 40;
+
+interface TranslationPreferences {
+  backend: TranslationBackend | '';
+  sourceLanguage: TranslationLanguage;
+  targetLanguage: TranslationLanguage;
+  captionsVisible: boolean;
+  captionFontSize: number;
+}
+
+const DEFAULT_TRANSLATION_PREFERENCES: TranslationPreferences = {
+  backend: '',
+  sourceLanguage: 'en',
+  targetLanguage: 'es',
+  captionsVisible: true,
+  captionFontSize: 48,
+};
+
+function loadTranslationPreferences(): TranslationPreferences {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(TRANSLATION_PREFERENCES_KEY) ?? 'null') as Partial<TranslationPreferences> | null;
+    const backend = ['', 'openai-realtime', 'elevenlabs-scribe', 'elevenlabs-realtime'].includes(parsed?.backend ?? '')
+      ? parsed?.backend ?? '' : '';
+    const sourceLanguage = parsed?.sourceLanguage === 'es' ? 'es' : 'en';
+    const targetLanguage = parsed?.targetLanguage === sourceLanguage
+      ? (sourceLanguage === 'en' ? 'es' : 'en') : parsed?.targetLanguage === 'en' ? 'en' : 'es';
+    const captionFontSize = Number(parsed?.captionFontSize);
+    return {
+      backend,
+      sourceLanguage,
+      targetLanguage,
+      captionsVisible: parsed?.captionsVisible !== false,
+      captionFontSize: Number.isFinite(captionFontSize) ? Math.max(28, Math.min(72, captionFontSize)) : 48,
+    };
+  } catch { return DEFAULT_TRANSLATION_PREFERENCES; }
+}
 
 function loadPracticeTextSize(): number {
   try {
@@ -95,6 +132,7 @@ function loadDrawerWidth(): number {
 
 export const SIDEBAR_TYPES = [
   'speakerNotes',
+  'liveTranslation',
   'practice',
   'presentations',
   'outline',
@@ -149,6 +187,7 @@ interface UIState {
   drawerWidth: number;
   theme: ThemeId;
   navHintSeen: boolean;
+  translation: TranslationPreferences;
 }
 
 const initialState: UIState = {
@@ -167,6 +206,7 @@ const initialState: UIState = {
   drawerWidth: loadDrawerWidth(),
   theme: loadTheme(),
   navHintSeen: loadNavHintSeen(),
+  translation: loadTranslationPreferences(),
 };
 
 const uiSlice = createSlice({
@@ -245,8 +285,21 @@ const uiSlice = createSlice({
     markNavHintSeen(state) {
       state.navHintSeen = true;
     },
+    setTranslationBackend(state, action: PayloadAction<TranslationBackend | ''>) {
+      state.translation.backend = action.payload;
+    },
+    setTranslationSourceLanguage(state, action: PayloadAction<TranslationLanguage>) {
+      state.translation.sourceLanguage = action.payload;
+      state.translation.targetLanguage = action.payload === 'en' ? 'es' : 'en';
+    },
+    setCaptionsVisible(state, action: PayloadAction<boolean>) {
+      state.translation.captionsVisible = action.payload;
+    },
+    setCaptionFontSize(state, action: PayloadAction<number>) {
+      if (Number.isFinite(action.payload)) state.translation.captionFontSize = Math.max(28, Math.min(72, action.payload));
+    },
   },
 });
 
-export const { setPracticeTextSize, setPresenterTalkMinutes, setPresenterPresenting, startPresenterTimer, startPresenterTimerIfIdle, pausePresenterTimer, resetPresenterTimer, setPresenterReadingMode, setPresenterShowNext, toggleDebugMode, setDebugMode, setResponsiveState, setIsFullscreen, toggleSidebar, openSidebar, toggleDeveloperTools, closeSidebar, setDrawerWidth, setTheme, markNavHintSeen } = uiSlice.actions;
+export const { setPracticeTextSize, setPresenterTalkMinutes, setPresenterPresenting, startPresenterTimer, startPresenterTimerIfIdle, pausePresenterTimer, resetPresenterTimer, setPresenterReadingMode, setPresenterShowNext, toggleDebugMode, setDebugMode, setResponsiveState, setIsFullscreen, toggleSidebar, openSidebar, toggleDeveloperTools, closeSidebar, setDrawerWidth, setTheme, markNavHintSeen, setTranslationBackend, setTranslationSourceLanguage, setCaptionsVisible, setCaptionFontSize } = uiSlice.actions;
 export default uiSlice.reducer;

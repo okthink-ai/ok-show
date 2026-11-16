@@ -30,7 +30,7 @@ describe('planInit', () => {
     expect(title).toBe('Launch Talk');
     const deck = 'src/data/presentations/launch-talk';
     for (const file of [
-      'package.json', '.gitignore', 'ok-show.config.ts', 'tsconfig.json', 'README.md', 'AGENTS.md',
+      'package.json', '.gitignore', '.env.example', 'ok-show.config.ts', 'tsconfig.json', 'README.md', 'AGENTS.md',
       'src/styles/brand.css', 'public/favicon.svg', 'src/data/presentations/index.ts',
       `${deck}/index.ts`, `${deck}/slides.tsx`, `${deck}/notes.mjs`, `${deck}/sparkle.mjs`, `${deck}/manuscript.md`,
     ]) {
@@ -44,6 +44,7 @@ describe('planInit', () => {
     // The starter docs name the deck and leave no placeholders.
     expect(files.get('README.md')).toMatch(/^# Launch Talk$/m);
     expect(files.get('README.md')).toContain(`${deck}/notes.mjs`);
+    expect(files.get('.env.example')).toContain('OPENAI_API_KEY=');
     for (const doc of ['README.md', 'AGENTS.md']) expect(files.get(doc), doc).not.toContain('{{');
     // Nothing from the app shell, tools, or server is copied.
     expect([...files.keys()].some((file) => /^(server|node|debug-cli)\/|App\.tsx$/.test(file))).toBe(false);

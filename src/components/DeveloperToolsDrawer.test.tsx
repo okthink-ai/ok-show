@@ -10,6 +10,7 @@ import type { DeveloperToolRegistry } from './DeveloperToolsDrawer';
 
 const registry = {
   speakerNotes: panel('speakerNotes', 'Speaker notes'),
+  liveTranslation: panel('liveTranslation', 'Live translation'),
   practice: panel('practice', 'Practice'),
   presentations: panel('presentations', 'Presentations'),
   outline: panel('outline', 'Outline'),

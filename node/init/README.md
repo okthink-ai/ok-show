@@ -19,6 +19,22 @@ npm run debug -- help
 `npm run dev` prints a deck link and a presenter link. Open them from the
 terminal: each carries the control token that speaker notes and sync need.
 
+## Live translated captions
+
+Copy `.env.example` to `.env`, configure either `OPENAI_API_KEY` or
+`ELEVENLABS_API_KEY`, and restart `npm run dev`. The **Live translation** tool
+and `/notes` can then start English ↔ Spanish microphone captions. Configure
+both providers only when you want an explicit choice; there is no automatic
+fallback. ElevenLabs enterprise realtime additionally needs entitlement,
+`ELEVENLABS_TRANSLATION_VOICE_ID`, and optionally its separate enterprise key.
+
+Microphone access from another device needs HTTPS (localhost is the normal
+development exception). Provider translation can be billable, including
+audio output that ok-show discards. Stop drains final output and retains it
+for eight seconds; Clear removes it immediately. Captions and audio are not
+persisted. This is a live authoring feature only: `npm run build`, public
+hosting, and PDF export contain no translation controls or credentials.
+
 ## Updating the engine
 
 `ok-show` installs from GitHub, not the npm registry, so

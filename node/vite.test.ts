@@ -111,6 +111,7 @@ describe('createViteConfig', () => {
     expect(config.resolve?.dedupe).toEqual(SHARED_DEPENDENCIES);
     expect(config.server?.fs?.allow).toEqual(expect.arrayContaining([ENGINE_ROOT]));
     expect(config.server?.proxy?.['/speaker-sync']).toMatchObject({ target: 'ws://127.0.0.1:6000', ws: true });
+    expect(config.server?.proxy?.['/translation-sync']).toMatchObject({ target: 'ws://127.0.0.1:6000', ws: true });
     expect(config.build?.outDir).toBe(project.outDir);
   });
 
@@ -120,6 +121,7 @@ describe('createViteConfig', () => {
     expect(config.base).toBe('/talks/');
     expect(config.server?.port).toBe(6100);
     expect(config.server?.proxy).toHaveProperty('/speaker-sync');
+    expect(config.server?.proxy).toHaveProperty('/translation-sync');
   });
 });
 
