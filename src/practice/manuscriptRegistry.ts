@@ -1,4 +1,4 @@
-import { manuscripts } from 'virtual:ok-vibe-slides/manuscripts';
+import { manuscripts } from 'virtual:ok-show/manuscripts';
 
 export interface PracticeManuscript {
   /** Sanitized HTML compiled at build time by `scripts/practice-markdown.ts`. */

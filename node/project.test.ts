@@ -17,7 +17,7 @@ import {
 
 const temps: string[] = [];
 function project(files: Record<string, string> = {}): string {
-  const root = mkdtempSync(join(tmpdir(), 'ok-vibe-slides-project-'));
+  const root = mkdtempSync(join(tmpdir(), 'ok-show-project-'));
   temps.push(root);
   for (const [path, body] of Object.entries(files)) {
     mkdirSync(join(root, path, '..'), { recursive: true });
@@ -101,8 +101,8 @@ describe('engineDirFor', () => {
   it('names the installed package path when the engine is in node_modules', () => {
     const root = project(REGISTRY);
     mkdirSync(join(root, 'node_modules'));
-    symlinkSync(ENGINE_ROOT, join(root, 'node_modules/ok-vibe-slides'), 'dir');
-    expect(engineDirFor(root)).toBe('node_modules/ok-vibe-slides/');
+    symlinkSync(ENGINE_ROOT, join(root, 'node_modules/ok-show'), 'dir');
+    expect(engineDirFor(root)).toBe('node_modules/ok-show/');
   });
 
   it('falls back to the engine location when it is not installed', () => {
@@ -146,12 +146,12 @@ describe('project file helpers', () => {
 describe('loadProject', () => {
   it('loads a TypeScript config file', async () => {
     const root = project({
-      'ok-vibe-slides.config.ts': "const dir: string = 'decks';\nexport default { presentationsDir: dir, title: 'Typed' };\n",
+      'ok-show.config.ts': "const dir: string = 'decks';\nexport default { presentationsDir: dir, title: 'Typed' };\n",
       'decks/index.ts': '',
     });
-    expect(findConfigFile(root)).toBe(join(root, 'ok-vibe-slides.config.ts'));
+    expect(findConfigFile(root)).toBe(join(root, 'ok-show.config.ts'));
     const resolved = await loadProject({ root });
-    expect(resolved).toMatchObject({ configFile: join(root, 'ok-vibe-slides.config.ts'), title: 'Typed', paths: { presentationsDir: 'decks' } });
+    expect(resolved).toMatchObject({ configFile: join(root, 'ok-show.config.ts'), title: 'Typed', paths: { presentationsDir: 'decks' } });
   });
 
   it('works without a config file and reports a missing explicit one', async () => {

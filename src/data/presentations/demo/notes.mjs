@@ -1,5 +1,5 @@
 export default {
-  'demo-title': ['Welcome the audience and introduce ok-vibe-slides as a code-first presentation engine.', 'Preview the dual-layout workflow and the annotation loop.'],
+  'demo-title': ['Welcome the audience and introduce ok-show as a code-first presentation engine.', 'Preview the dual-layout workflow and the annotation loop.'],
   'demo-toc': [
     'Frame the demo around templates, layout, data, media, and team profiles.',
     'Templates first: every slide is a typed React component with landscape and portrait layouts.',

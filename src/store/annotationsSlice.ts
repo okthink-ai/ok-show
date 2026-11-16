@@ -13,9 +13,9 @@ import {
 
 export type { PendingAnnotationDraft } from '../types/annotation.types';
 
-export const ANNOTATIONS_KEY = 'ok-vibe-slides-annotations';
-export const MODE_KEY = 'ok-vibe-slides-annotations-mode';
-export const PENDING_ANNOTATION_KEY = 'ok-vibe-slides-pending-annotation';
+export const ANNOTATIONS_KEY = 'ok-show-annotations';
+export const MODE_KEY = 'ok-show-annotations-mode';
+export const PENDING_ANNOTATION_KEY = 'ok-show-pending-annotation';
 
 function loadAnnotations(): Annotation[] {
   try {

@@ -18,6 +18,6 @@ declare global {
   }
 
   interface Window {
-    __OK_VIBE_DEBUG__?: DebugAdapter;
+    __OK_SHOW_DEBUG__?: DebugAdapter;
   }
 }

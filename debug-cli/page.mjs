@@ -37,7 +37,7 @@ export function keepSession(target, currentUrl, appUrl) {
 }
 
 async function waitForApp(page) {
-  await page.waitForFunction(() => Boolean(window.__OK_VIBE_DEBUG__), null, { timeout: 15000 });
+  await page.waitForFunction(() => Boolean(window.__OK_SHOW_DEBUG__), null, { timeout: 15000 });
 }
 
 async function browserCommand({ flags, ctx }) {

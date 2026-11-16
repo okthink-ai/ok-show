@@ -13,7 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "types": ["ok-vibe-slides/client"]
+    "types": ["ok-show/client"]
   },
-  "include": ["decks", "templates", "ok-vibe-slides.config.ts"]
+  "include": ["decks", "templates", "ok-show.config.ts"]
 }

@@ -4,7 +4,7 @@ import { promisify } from 'node:util';
 import { expect, test } from '@playwright/test';
 
 const APP_URL = 'http://127.0.0.1:5198';
-const VIDEO_PATH = 'docs/assets/ok-vibe-slides-demo.mp4';
+const VIDEO_PATH = 'docs/assets/ok-show-demo.mp4';
 const execFileAsync = promisify(execFile);
 
 test('record the user-facing feature tour', async ({ browser }) => {

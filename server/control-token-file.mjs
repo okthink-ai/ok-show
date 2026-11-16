@@ -2,7 +2,7 @@ import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:
 import { dirname, join, resolve } from 'node:path';
 
 /**
- * Where `ok-vibe-slides dev` records the control token it generated in a
+ * Where `ok-show dev` records the control token it generated in a
  * project, so local tools (the debug CLI) can authenticate without the token
  * ever reaching the browser bundle. Projects should git-ignore `.tmp/`.
  */
@@ -11,7 +11,7 @@ export const controlTokenFile = (root = process.cwd()) => join(resolve(root), '.
 /** The token file for the project in the current directory, where the debug CLI runs. */
 export const CONTROL_TOKEN_FILE = controlTokenFile();
 
-/** Where `ok-vibe-slides dev` records the app and notes-service URLs it is serving. */
+/** Where `ok-show dev` records the app and notes-service URLs it is serving. */
 export const devServerFile = (root = process.cwd()) => join(resolve(root), '.tmp/dev-server.json');
 
 export function writeDevServerFile(state, path = devServerFile()) {

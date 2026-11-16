@@ -11,7 +11,7 @@ import { persistedField, registerPersistence } from './persistence';
 import { annotationsFromStorageEvent } from './crossTabSync';
 
 // Storage key of the removed per-deck practice annotation session.
-const STALE_PRACTICE_SESSION_KEY = 'ok-vibe-slides-practice-annotation-session';
+const STALE_PRACTICE_SESSION_KEY = 'ok-show-practice-annotation-session';
 try { localStorage.removeItem(STALE_PRACTICE_SESSION_KEY); } catch { /* storage unavailable */ }
 
 const listenerMiddleware = createListenerMiddleware();

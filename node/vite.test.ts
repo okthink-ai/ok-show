@@ -17,7 +17,7 @@ import {
 
 const temps: string[] = [];
 function consumer(files: Record<string, string> = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'ok-vibe-slides-vite-'));
+  const root = mkdtempSync(join(tmpdir(), 'ok-show-vite-'));
   temps.push(root);
   for (const [path, body] of Object.entries({ 'decks/index.ts': '', ...files })) {
     mkdirSync(join(root, path, '..'), { recursive: true });
@@ -62,7 +62,7 @@ describe('project styles and HTML', () => {
   });
 
   it('sets the escaped title and appends head HTML', () => {
-    const html = '<html><head><title>ok-vibe-slides</title></head><body></body></html>';
+    const html = '<html><head><title>ok-show</title></head><body></body></html>';
     expect(projectHtml(html, { title: 'A & <B>', head: '<meta name="x">' }))
       .toBe('<html><head><title>A &amp; &lt;B&gt;</title><meta name="x">\n  </head><body></body></html>');
     expect(projectHtml(html, { title: undefined, head: '' })).toBe(html);
@@ -107,7 +107,7 @@ describe('createViteConfig', () => {
     const config = createViteConfig(project, { command: 'serve', mode: 'development' }, { syncPort: 6000 });
     expect(config.root).toBe(ENGINE_ROOT);
     expect(config.envDir).toBe(project.root);
-    expect(config.cacheDir).toBe(join(project.root, 'node_modules/.vite-ok-vibe-slides'));
+    expect(config.cacheDir).toBe(join(project.root, 'node_modules/.vite-ok-show'));
     expect(config.resolve?.dedupe).toEqual(SHARED_DEPENDENCIES);
     expect(config.server?.fs?.allow).toEqual(expect.arrayContaining([ENGINE_ROOT]));
     expect(config.server?.proxy?.['/speaker-sync']).toMatchObject({ target: 'ws://127.0.0.1:6000', ws: true });

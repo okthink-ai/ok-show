@@ -1,4 +1,4 @@
-# ok-vibe-slides
+# ok-show
 
 Slides you write in code and polish with an AI agent.
 
@@ -13,9 +13,9 @@ It also has the things you need on the day itself: speaker notes on your
 phone, a rehearsal mode that walks through your script, PDF export, and a
 public build you can host anywhere.
 
-![A title slide made with ok-vibe-slides](docs/screenshots/01-title-slide.png)
+![A title slide made with ok-show](docs/screenshots/01-title-slide.png)
 
-[Watch a 30-second tour](docs/assets/ok-vibe-slides-demo.mp4) of themes and
+[Watch a 30-second tour](docs/assets/ok-show-demo.mp4) of themes and
 the synced presenter view.
 
 ## How a session goes
@@ -40,9 +40,9 @@ code by hand whenever you want, since it's just files in your project.
 You'll need:
 
 - **Node.js 20.19 or newer.** Check with `node -v`.
-- **Access to the GitHub repo.** ok-vibe-slides installs straight from
+- **Access to the GitHub repo.** ok-show installs straight from
   GitHub, and the repo is private, so whatever lets you run
-  `git clone git@github.com:okthink-ai/ok-vibe-slides.git` is what lets you
+  `git clone git@github.com:okthink-ai/ok-show.git` is what lets you
   install it. If that clone fails, ask whoever shared this with you to add you.
 - **A browser.** Chrome is best, since the debug tools drive it.
 - **A coding agent**, if you want the agent workflow. It's optional; the deck
@@ -51,7 +51,7 @@ You'll need:
 ## Make your first deck
 
 ```bash
-npx github:okthink-ai/ok-vibe-slides init my-talk --title "My Talk" --install
+npx github:okthink-ai/ok-show init my-talk --title "My Talk" --install
 cd my-talk
 npm run dev
 ```
@@ -93,7 +93,7 @@ the phone preview, the text style tweaker, PDF export, and fullscreen.
 
 `init` copies the things you'll actually edit into your project. The app
 itself, the presenter view, and the dev tools stay inside the
-`ok-vibe-slides` package in `node_modules`, so you never have to look at them.
+`ok-show` package in `node_modules`, so you never have to look at them.
 
 | Path | What it's for |
 |------|---------------|
@@ -106,7 +106,7 @@ itself, the presenter view, and the dev tools stay inside the
 | `src/components/slides/` | The slide layouts. These are your copies, so change them freely |
 | `src/styles/brand.css` | Your colors and fonts |
 | `public/` | Images, video, favicon |
-| `ok-vibe-slides.config.ts` | Page title, extra `<head>` tags, folder locations |
+| `ok-show.config.ts` | Page title, extra `<head>` tags, folder locations |
 | `AGENTS.md` | Instructions for your coding agent |
 | `README.md` | A short guide to the project |
 
@@ -128,7 +128,7 @@ the layout itself in `content`:
 
 ```tsx
 // src/data/presentations/my-talk/slides.tsx
-import type { SlideData } from 'ok-vibe-slides';
+import type { SlideData } from 'ok-show';
 import TitleSlide from '../../../components/slides/TitleSlide';
 import BulletSlide from '../../../components/slides/BulletSlide';
 import FiguresSlide from '../../../components/slides/FiguresSlide';
@@ -278,7 +278,7 @@ A project can hold as many decks as you like:
 2. In the new folder's `index.ts`, change the `id`, the title, and the
    exported name:
    ```ts
-   import type { Presentation } from 'ok-vibe-slides';
+   import type { Presentation } from 'ok-show';
    import { slides } from './slides';
 
    export const boardUpdate: Presentation = {
@@ -294,7 +294,7 @@ A project can hold as many decks as you like:
    exports `myTalk`). The first one in the list is the one that opens by
    default:
    ```ts
-   import type { Presentation } from 'ok-vibe-slides';
+   import type { Presentation } from 'ok-show';
    import { myTalk } from './my-talk';
    import { boardUpdate } from './board-update';
 
@@ -472,7 +472,7 @@ values win over whichever theme is picked. Settings you leave alone still
 change with the theme, so override the background and text colors too if you
 want the brand to look the same everywhere.
 
-To load a web font, add a `<link>` to `head` in `ok-vibe-slides.config.ts`,
+To load a web font, add a `<link>` to `head` in `ok-show.config.ts`,
 or an `@import` at the top of `brand.css`.
 
 Need to change one theme only? Use its name: `:root[data-theme='paper'] { … }`.
@@ -484,7 +484,7 @@ The full list of variables is under [Design tokens](#design-tokens).
 ### Changing a layout
 
 The layouts in `src/components/slides/` are your own copies, so edit them
-directly. Updating ok-vibe-slides later won't overwrite them.
+directly. Updating ok-show later won't overwrite them.
 
 ### Adding your own layout
 
@@ -507,7 +507,7 @@ Add two files next to the others, with the same name: `QuoteSlide.tsx` and
 ```tsx
 // src/components/slides/QuoteSlide.tsx
 import type { FC } from 'react';
-import type { BaseSlideProps } from 'ok-vibe-slides';
+import type { BaseSlideProps } from 'ok-show';
 import SlideHeader from './SlideHeader';
 import './QuoteSlide.css';
 
@@ -547,12 +547,12 @@ follow these rules. They're in your project's `AGENTS.md`.
 You don't need any of this to make a deck, but it helps when something looks
 odd.
 
-**It's a Vite app you don't have to maintain.** The `ok-vibe-slides` package
+**It's a Vite app you don't have to maintain.** The `ok-show` package
 contains the whole app: the slide viewer, the developer tools, the presenter
 page, and a Vite config. When you run `npm run dev`, the CLI starts Vite with
 the package as the app root and plugs your project in. Your decks, layouts,
 styles, and public files reach the app through a handful of virtual modules
-(`virtual:ok-vibe-slides/presentations`, `/manuscripts`, `/project`, and
+(`virtual:ok-show/presentations`, `/manuscripts`, `/project`, and
 `/styles`) that the package's Vite plugin builds from your folders. It's the
 same idea as Astro or Next.js: you write content, and the framework is a
 dependency.
@@ -585,13 +585,13 @@ they're private to you and survive reloads. Copy All turns them into the
 review packet, which is plain Markdown on your clipboard. Nothing is sent
 anywhere.
 
-**Updating.** Your project depends on `github:okthink-ai/ok-vibe-slides`,
+**Updating.** Your project depends on `github:okthink-ai/ok-show`,
 optionally pinned to a branch or tag with `#`. To update, install it again:
 
 ```bash
-npm install github:okthink-ai/ok-vibe-slides
+npm install github:okthink-ai/ok-show
 # or a specific version:
-npm install github:okthink-ai/ok-vibe-slides#v1.2.0
+npm install github:okthink-ai/ok-show#v1.2.0
 ```
 
 Your slides, layouts, and brand file are copies in your project, so updating
@@ -604,7 +604,7 @@ Use the Deck or Presenter link the terminal printed.
 
 **`npm install` fails with a git or permission error.** You don't have access
 to the GitHub repo yet. Check that
-`git clone git@github.com:okthink-ai/ok-vibe-slides.git` works.
+`git clone git@github.com:okthink-ai/ok-show.git` works.
 
 **The port isn't 5199.** Something else was using it, so the dev server picked
 the next free one. Use the links it printed.
@@ -617,8 +617,8 @@ overflow.
 and that you're using the link with your computer's network address, not
 `localhost`.
 
-**The editor shows type errors for `virtual:ok-vibe-slides/...`.** Your
-`tsconfig.json` needs `"types": ["ok-vibe-slides/client"]` in
+**The editor shows type errors for `virtual:ok-show/...`.** Your
+`tsconfig.json` needs `"types": ["ok-show/client"]` in
 `compilerOptions`. The one `init` writes already has it.
 
 ---
@@ -642,38 +642,38 @@ The CLI behind them:
 
 | Command | What it does |
 |---------|--------------|
-| `ok-vibe-slides init [dir]` | Create a project with a starter deck, layouts, and brand styles |
-| `ok-vibe-slides dev` | Authoring server on port 5199: deck, `/notes` presenter, notes service, developer tools |
-| `ok-vibe-slides build` | Public site (deck, navigation, export) with no authoring code |
-| `ok-vibe-slides preview` | Serve the built site |
-| `ok-vibe-slides debug <command>` | Debug CLI against the running dev server |
-| `ok-vibe-slides audit` | Audit every slide in the running deck (`--json` for machine output) |
-| `ok-vibe-slides sparkle <command>` | Generate image and video assets with Sparkle |
-| `ok-vibe-slides sync` | Run the speaker-notes service alone |
-| `ok-vibe-slides info` | Print the resolved configuration |
-| `ok-vibe-slides help` | List commands and options |
+| `ok-show init [dir]` | Create a project with a starter deck, layouts, and brand styles |
+| `ok-show dev` | Authoring server on port 5199: deck, `/notes` presenter, notes service, developer tools |
+| `ok-show build` | Public site (deck, navigation, export) with no authoring code |
+| `ok-show preview` | Serve the built site |
+| `ok-show debug <command>` | Debug CLI against the running dev server |
+| `ok-show audit` | Audit every slide in the running deck (`--json` for machine output) |
+| `ok-show sparkle <command>` | Generate image and video assets with Sparkle |
+| `ok-show sync` | Run the speaker-notes service alone |
+| `ok-show info` | Print the resolved configuration |
+| `ok-show help` | List commands and options |
 
 Each command accepts only the options it uses: `--root <dir>` and
 `--config <file>` for the project, `--mode <mode>` for the Vite mode, and
 `--host [host]` and `--port <port>` for `dev` and `preview`. Run
-`ok-vibe-slides help` for the details.
+`ok-show help` for the details.
 
 ### init options
 
 ```bash
-npx github:okthink-ai/ok-vibe-slides init my-talk --title "My Talk" --install
+npx github:okthink-ai/ok-show init my-talk --title "My Talk" --install
 ```
 
 | Option | What it does |
 |--------|--------------|
 | `--deck <id>` | Deck ID and folder name (default: the project folder name). Slide IDs become `<id>-…` |
 | `--title <text>` | Deck and page title (default: made from the deck ID) |
-| `--engine <spec>` | The `ok-vibe-slides` dependency to write into `package.json`, such as `github:okthink-ai/ok-vibe-slides#main` |
+| `--engine <spec>` | The `ok-show` dependency to write into `package.json`, such as `github:okthink-ai/ok-show#main` |
 | `--install` | Run the install afterwards |
 | `--force` | Overwrite files that already exist. Without it, `init` stops and lists them |
 
 The new project depends on whatever `npx` ran, so
-`npx github:okthink-ai/ok-vibe-slides#v1.2.0 init my-talk` gives you a project
+`npx github:okthink-ai/ok-show#v1.2.0 init my-talk` gives you a project
 pinned to `v1.2.0`. `init` also works in an existing folder: it adds the
 scripts and dependencies it needs to `package.json` and the lines it needs to
 `.gitignore`.
@@ -683,7 +683,7 @@ scripts and dependencies it needs to `package.json` and the lines it needs to
 If you'd rather not use `init`:
 
 ```bash
-npm install github:okthink-ai/ok-vibe-slides react react-dom
+npm install github:okthink-ai/ok-show react react-dom
 ```
 
 Add the scripts to `package.json`:
@@ -691,36 +691,36 @@ Add the scripts to `package.json`:
 ```json
 {
   "scripts": {
-    "dev": "ok-vibe-slides dev",
-    "build": "ok-vibe-slides build",
-    "preview": "ok-vibe-slides preview"
+    "dev": "ok-show dev",
+    "build": "ok-show build",
+    "preview": "ok-show preview"
   }
 }
 ```
 
 Then put your decks in `src/data/presentations/`, with an `index.ts` that
-exports `presentations`, and add `"types": ["ok-vibe-slides/client"]` to
+exports `presentations`, and add `"types": ["ok-show/client"]` to
 `compilerOptions` in `tsconfig.json`.
 
 You can use the built-in layouts straight from the package:
 
 ```tsx
-import type { SlideData } from 'ok-vibe-slides';
-import TitleSlide from 'ok-vibe-slides/slides/TitleSlide';
-import VideoOverlay from 'ok-vibe-slides/components/VideoOverlay';
+import type { SlideData } from 'ok-show';
+import TitleSlide from 'ok-show/slides/TitleSlide';
+import VideoOverlay from 'ok-show/components/VideoOverlay';
 ```
 
 Import each layout from its own path like this. Importing layouts from the
-`ok-vibe-slides` root also loads every layout's CSS, including any you've
+`ok-show` root also loads every layout's CSS, including any you've
 replaced with your own copy.
 
 ## Configuration
 
-Everything here is optional. Put it in `ok-vibe-slides.config.ts` (or `.mts`,
+Everything here is optional. Put it in `ok-show.config.ts` (or `.mts`,
 `.js`, `.mjs`) in the project root:
 
 ```ts
-import { defineConfig } from 'ok-vibe-slides/config';
+import { defineConfig } from 'ok-show/config';
 
 export default defineConfig({
   presentationsDir: 'src/data/presentations',
@@ -1063,14 +1063,14 @@ command.
 
 ## Generating images with Sparkle
 
-[Sparkle](https://sparkle.okthink.ai) is an image generation service. `ok-vibe-slides sparkle` generates
+[Sparkle](https://sparkle.okthink.ai) is an image generation service. `ok-show sparkle` generates
 images (and turns images into short videos), downloads them into your project,
 and keeps a record of each prompt, model, and job:
 
 ```bash
-npx ok-vibe-slides sparkle generate "a lighthouse at dusk, flat illustration" \
+npx ok-show sparkle generate "a lighthouse at dusk, flat illustration" \
   --output src/data/presentations/my-talk/assets/generated/hero.png
-npx ok-vibe-slides sparkle validate
+npx ok-show sparkle validate
 ```
 
 Files saved inside a deck folder are recorded in that deck's
@@ -1086,7 +1086,7 @@ covers setup and every command.
 For running the notes service outside `npm run dev`, or exposing it beyond
 your own network:
 
-- `ok-vibe-slides sync` starts the notes service alone. Give it a token with
+- `ok-show sync` starts the notes service alone. Give it a token with
   `SYNC_CONTROL_TOKEN` and put that same token in both links. (In this repo,
   `npm run dev:vite` and `npm run dev:sync` start the two halves separately.)
 - Sessions survive restarts: the service saves state in
@@ -1103,14 +1103,14 @@ your own network:
 
 ---
 
-# Working on ok-vibe-slides itself
+# Working on ok-show itself
 
 This repository is the engine, and it's also a project: its scripts run the
 same CLI against the built-in demo deck in `src/data/presentations/demo/`.
 
 ```bash
-git clone git@github.com:okthink-ai/ok-vibe-slides.git
-cd ok-vibe-slides
+git clone git@github.com:okthink-ai/ok-show.git
+cd ok-show
 npm install
 npm run dev
 ```
@@ -1120,7 +1120,7 @@ It links the new project to the checkout with a relative `file:` path instead
 of GitHub:
 
 ```bash
-node ../ok-vibe-slides/bin/ok-vibe-slides.mjs init my-talk --install
+node ../ok-show/bin/ok-show.mjs init my-talk --install
 ```
 
 ### Checks
@@ -1159,8 +1159,8 @@ src/
   data/presentations/   The demo deck and its registry
   project/              Reads the project's decks and paths from the virtual modules
   index.ts              Package entry: types, layouts, helpers
-  client.d.ts           Types for the virtual modules (ok-vibe-slides/client)
-bin/                    The ok-vibe-slides CLI entry
+  client.d.ts           Types for the virtual modules (ok-show/client)
+bin/                    The ok-show CLI entry
 node/                   CLI commands, init, config loader, Vite config and plugin
 node/init/              The starter README, AGENTS.md, and brand.css that init fills in
 server/                 Speaker-notes sync service and notes loader

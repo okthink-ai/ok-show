@@ -2,15 +2,15 @@ import { existsSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** The installed ok-vibe-slides package: its app shell, templates, server, and tools. */
+/** The installed ok-show package: its app shell, templates, server, and tools. */
 export const ENGINE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const PACKAGE_NAME = 'ok-vibe-slides';
+export const PACKAGE_NAME = 'ok-show';
 
 export const CONFIG_FILES = [
-  'ok-vibe-slides.config.ts',
-  'ok-vibe-slides.config.mts',
-  'ok-vibe-slides.config.js',
-  'ok-vibe-slides.config.mjs',
+  'ok-show.config.ts',
+  'ok-show.config.mts',
+  'ok-show.config.js',
+  'ok-show.config.mjs',
 ];
 
 export const DEFAULTS = Object.freeze({
@@ -56,7 +56,7 @@ export function findPresentationsEntry(presentationsDir) {
 /**
  * How review packets should name engine files from the project's point of
  * view: '' when the project is the engine itself, otherwise the installed
- * package path (`node_modules/ok-vibe-slides/`).
+ * package path (`node_modules/ok-show/`).
  */
 export function engineDirFor(root, engineRoot = ENGINE_ROOT) {
   const realRoot = realpathSync(root);
@@ -71,7 +71,7 @@ function stringOption(config, key, fallback) {
   const value = config[key];
   if (value === undefined) return fallback;
   if (typeof value !== 'string' || value.trim() === '') {
-    throw new Error(`ok-vibe-slides config: "${key}" must be a non-empty string`);
+    throw new Error(`ok-show config: "${key}" must be a non-empty string`);
   }
   return value;
 }
@@ -104,11 +104,11 @@ export function listManuscripts(presentationsDir) {
  */
 export function resolveProject(rawConfig = {}, { root = process.cwd(), configFile = null, engineRoot = ENGINE_ROOT } = {}) {
   if (rawConfig === null || typeof rawConfig !== 'object' || Array.isArray(rawConfig)) {
-    throw new Error('ok-vibe-slides config must export an object');
+    throw new Error('ok-show config must export an object');
   }
   const unknown = Object.keys(rawConfig).filter((key) => !KNOWN_KEYS.has(key));
   if (unknown.length) {
-    throw new Error(`ok-vibe-slides config: unknown option${unknown.length === 1 ? '' : 's'} ${unknown.map((key) => `"${key}"`).join(', ')}`);
+    throw new Error(`ok-show config: unknown option${unknown.length === 1 ? '' : 's'} ${unknown.map((key) => `"${key}"`).join(', ')}`);
   }
   root = resolve(root);
   const presentationsDir = resolve(root, stringOption(rawConfig, 'presentationsDir', DEFAULTS.presentationsDir));
@@ -119,25 +119,25 @@ export function resolveProject(rawConfig = {}, { root = process.cwd(), configFil
     : resolve(root, stringOption(rawConfig, 'publicDir', DEFAULTS.publicDir));
   const title = rawConfig.title === undefined ? undefined : stringOption(rawConfig, 'title');
   const head = rawConfig.head ?? '';
-  if (typeof head !== 'string') throw new Error('ok-vibe-slides config: "head" must be an HTML string');
+  if (typeof head !== 'string') throw new Error('ok-show config: "head" must be an HTML string');
   const styleEntries = rawConfig.styles ?? [];
   if (!Array.isArray(styleEntries) || styleEntries.some((entry) => typeof entry !== 'string' || entry.trim() === '')) {
-    throw new Error('ok-vibe-slides config: "styles" must be a list of stylesheet paths');
+    throw new Error('ok-show config: "styles" must be a list of stylesheet paths');
   }
   const styles = styleEntries.map((entry) => resolve(root, entry));
   const missingStyle = styles.find((file) => !existsSync(file));
-  if (missingStyle) throw new Error(`ok-vibe-slides config: stylesheet not found: ${projectRelative(root, missingStyle)}`);
+  if (missingStyle) throw new Error(`ok-show config: stylesheet not found: ${projectRelative(root, missingStyle)}`);
   const vite = rawConfig.vite ?? {};
   if (vite === null || typeof vite !== 'object' || Array.isArray(vite)) {
-    throw new Error('ok-vibe-slides config: "vite" must be a Vite config object');
+    throw new Error('ok-show config: "vite" must be a Vite config object');
   }
 
   const presentationsEntry = findPresentationsEntry(presentationsDir);
   if (!presentationsEntry) {
     throw new Error(
-      `ok-vibe-slides: no deck registry in ${projectRelative(root, presentationsDir)}/. `
+      `ok-show: no deck registry in ${projectRelative(root, presentationsDir)}/. `
       + `Create ${projectRelative(root, join(presentationsDir, 'index.ts'))} exporting \`presentations: Presentation[]\`, `
-      + 'or set "presentationsDir" in ok-vibe-slides.config.',
+      + 'or set "presentationsDir" in ok-show.config.',
     );
   }
 
@@ -164,13 +164,13 @@ export function resolveProject(rawConfig = {}, { root = process.cwd(), configFil
   };
 }
 
-/** Load `ok-vibe-slides.config.*` from the project root (TypeScript is supported) and resolve it. */
+/** Load `ok-show.config.*` from the project root (TypeScript is supported) and resolve it. */
 export async function loadProject({ root = process.cwd(), configFile, command = 'serve', mode = 'development', engineRoot = ENGINE_ROOT } = {}) {
   root = resolve(root);
   const file = configFile ? resolve(root, configFile) : findConfigFile(root);
   let rawConfig = {};
   if (file) {
-    if (!existsSync(file)) throw new Error(`ok-vibe-slides: config file not found: ${file}`);
+    if (!existsSync(file)) throw new Error(`ok-show: config file not found: ${file}`);
     const { loadConfigFromFile } = await import('vite');
     const loaded = await loadConfigFromFile({ command, mode, isSsrBuild: false, isPreview: false }, file, root, 'silent');
     rawConfig = loaded?.config ?? {};

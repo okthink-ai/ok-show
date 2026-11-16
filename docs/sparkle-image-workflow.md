@@ -1,6 +1,6 @@
 # Sparkle Asset Workflow
 
-`ok-vibe-slides sparkle` is a client for the public [Sparkle API](https://sparkle.okthink.ai/docs/api-reference.html). It creates images and videos through Sparkle, downloads them into your project, and records each prompt, model, and job in a manifest you commit.
+`ok-show sparkle` is a client for the public [Sparkle API](https://sparkle.okthink.ai/docs/api-reference.html). It creates images and videos through Sparkle, downloads them into your project, and records each prompt, model, and job in a manifest you commit.
 
 The workflow supports:
 

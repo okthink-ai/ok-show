@@ -5,7 +5,7 @@ test('either screen drives the session and the presenter view recovers after ref
   const notes = await browser.newPage();
   await presentation.goto('/?presentation=demo&slide=1&session=browser-test&token=test-token');
   await notes.goto('/notes?session=browser-test&token=test-token');
-  await expect.poll(() => presentation.evaluate(() => Boolean(window.__OK_VIBE_DEBUG__))).toBe(true);
+  await expect.poll(() => presentation.evaluate(() => Boolean(window.__OK_SHOW_DEBUG__))).toBe(true);
   await expect(notes.getByTestId('speaker-notes-view')).toBeVisible();
   const currentProgress = notes.locator('.speaker-notes__progress span[data-current="true"]');
   const visitedProgress = notes.locator('.speaker-notes__progress span[data-visited="true"]');
@@ -115,7 +115,7 @@ test('desktop presenter view keeps tall notes left and puts the next preview bes
   await expect(notes.locator('.sparkle-prompt-card')).toHaveCount(0);
   await expect(notes.locator('.speaker-notes__controls select')).toHaveCount(0);
   // One dot per slide, read from the deck itself so adding a slide is not a failure.
-  const slideCount = await presentation.evaluate(() => window.__OK_VIBE_DEBUG__!.getSnapshot().slideCount);
+  const slideCount = await presentation.evaluate(() => window.__OK_SHOW_DEBUG__!.getSnapshot().slideCount);
   await expect(notes.locator('.speaker-notes__progress span')).toHaveCount(slideCount);
   await expect(notes.locator('.speaker-notes__progress span[data-visited="true"]')).toHaveCount(3);
   await expect(notes.locator('.speaker-notes__progress-count')).toHaveCount(0);
@@ -165,7 +165,7 @@ test('speaker-notes sidebar reviews, annotates, scroll-navigates, and joins Copy
   await expect(sidebar).toBeVisible();
   const sectionButtons = page.getByRole('navigation', { name: 'Developer tool sections' }).getByRole('button');
   await expect(sectionButtons.first()).toHaveAccessibleName('Speaker notes');
-  await expect(sidebar.getByText('Welcome the audience and introduce ok-vibe-slides as a code-first presentation engine.')).toBeVisible();
+  await expect(sidebar.getByText('Welcome the audience and introduce ok-show as a code-first presentation engine.')).toBeVisible();
 
   const drawer = page.getByRole('complementary', { name: 'Developer tools' });
   const resizeHandle = page.getByRole('separator', { name: 'Resize developer tools' });
@@ -195,9 +195,9 @@ test('speaker-notes sidebar reviews, annotates, scroll-navigates, and joins Copy
 
   await firstNote.dblclick();
   const replacementEditor = sidebar.getByRole('textbox', { name: 'Edit speaker note 1 on slide 1' });
-  await replacementEditor.fill('Greet the audience and introduce ok-vibe-slides as a code-first presentation engine.');
+  await replacementEditor.fill('Greet the audience and introduce ok-show as a code-first presentation engine.');
   await replacementEditor.press('Enter');
-  await expect(firstNote).toHaveText('Greet the audience and introduce ok-vibe-slides as a code-first presentation engine.');
+  await expect(firstNote).toHaveText('Greet the audience and introduce ok-show as a code-first presentation engine.');
 
   const secondNote = sidebar.locator('.speaker-notes-sidebar__notes li').nth(1).locator('p');
   await secondNote.evaluate((element) => {
@@ -263,7 +263,7 @@ test('speaker-notes sidebar reviews, annotates, scroll-navigates, and joins Copy
   await expect(page.getByText('Speaker note 1 · selected text')).toBeVisible();
   await expect(page.getByText('Speaker note 2 · selected text')).toBeVisible();
   await expect(page.getByText('Sparkle · image prompt')).toBeVisible();
-  await expect(page.getByText('Replace with “Greet the audience and introduce ok-vibe-slides as a code-first presentation engine.”')).toBeVisible();
+  await expect(page.getByText('Replace with “Greet the audience and introduce ok-show as a code-first presentation engine.”')).toBeVisible();
   await page.evaluate(() => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -285,7 +285,7 @@ test('speaker-notes sidebar reviews, annotates, scroll-navigates, and joins Copy
   expect(copied).toContain('Lead with a shorter welcome.');
   expect(copied).toContain('Make this preview more specific.');
   expect(copied).toContain('**Replace with:**');
-  expect(copied).toContain('Greet the audience and introduce ok-vibe-slides as a code-first presentation engine.');
+  expect(copied).toContain('Greet the audience and introduce ok-show as a code-first presentation engine.');
   expect(copied).toContain('sparkle.mjs["demo-title"].imagePrompt');
   expect(copied).toContain('Author an image prompt for this slide.');
 });

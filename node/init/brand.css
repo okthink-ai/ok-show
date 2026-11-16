@@ -1,6 +1,6 @@
 /*
  * Brand stylesheet, loaded after the engine's styles (see `styles` in
- * ok-vibe-slides.config.ts).
+ * ok-show.config.ts).
  *
  * Every template reads its colors, fonts, radii, and shadows from these
  * design tokens, so changing a token restyles every slide. Uncomment a token

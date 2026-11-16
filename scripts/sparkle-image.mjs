@@ -13,8 +13,8 @@ import { pathToFileURL } from 'node:url';
 const DEFAULT_API_URL = 'https://us-central1-rm-image-maker.cloudfunctions.net/api';
 /** Each deck keeps its own manifest beside the assets it describes. */
 const DECK_MANIFEST_PATH = 'assets/generated/sparkle-manifest.json';
-/** Set by the `ok-vibe-slides sparkle` command from the project's config. */
-const PRESENTATIONS_PATH = (process.env.OK_VIBE_SLIDES_PRESENTATIONS_DIR || 'src/data/presentations').replace(/\/+$/, '');
+/** Set by the `ok-show sparkle` command from the project's config. */
+const PRESENTATIONS_PATH = (process.env.OK_SHOW_PRESENTATIONS_DIR || 'src/data/presentations').replace(/\/+$/, '');
 const PRESENTATION_OUTPUT_PATTERN = new RegExp(`^(${PRESENTATIONS_PATH.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/[^/]+)/`);
 const MANIFEST_LOCK_PATH = '.tmp/sparkle-image-manifest.lock';
 const POLL_INTERVAL_MS = 3_000;

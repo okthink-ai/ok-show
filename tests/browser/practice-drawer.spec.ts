@@ -44,7 +44,7 @@ for (const surface of ['drawer', 'presenter'] as const) {
     await page.getByPlaceholder('Describe the change…').fill('Explain this with one concrete example.');
     await page.getByPlaceholder('Describe the change…').press('Enter');
     await expect(page.locator('.comment-popup')).toHaveCount(0);
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-vibe-slides-annotations') ?? '[]'));
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-show-annotations') ?? '[]'));
     expect(saved.annotations).toEqual(expect.arrayContaining([expect.objectContaining({
       source: 'practice', comment: 'Explain this with one concrete example.', practice: expect.objectContaining({ target: 'talk' }),
     })]));
@@ -114,11 +114,11 @@ for (const surface of ['drawer', 'presenter'] as const) {
     await viewport.focus();
     await viewport.press('j');
     const selected = () => page.evaluate(() => window.getSelection()?.toString());
-    await expect.poll(selected).toBe('This is ok-vibe-slides, a presentation engine where every slide is a React component.');
+    await expect.poll(selected).toBe('This is ok-show, a presentation engine where every slide is a React component.');
     await viewport.press('k');
     await expect.poll(selected).toBe('Welcome, everyone.');
     await viewport.press('Shift+J');
-    await expect.poll(selected).toBe('Welcome, everyone. This is ok-vibe-slides, a presentation engine where every slide is a React component.');
+    await expect.poll(selected).toBe('Welcome, everyone. This is ok-show, a presentation engine where every slide is a React component.');
     await viewport.press('Shift+K');
     await expect.poll(selected).toBe('Welcome, everyone.');
     await viewport.press('Shift+J');
@@ -129,14 +129,14 @@ for (const surface of ['drawer', 'presenter'] as const) {
     })).toBeLessThan(3);
     await viewport.press('x');
     await expect(page.locator('.comment-popup')).toHaveCount(1);
-    await expect(page.locator('.comment-popup__selection')).toContainText('Welcome, everyone. This is ok-vibe-slides, a presentation engine where every slide is a React component.');
+    await expect(page.locator('.comment-popup__selection')).toContainText('Welcome, everyone. This is ok-show, a presentation engine where every slide is a React component.');
     const input = page.getByPlaceholder('Describe the change…');
     await input.fill('j k x stay text here');
     await input.press('Enter');
     await expect(page.locator('.comment-popup')).toHaveCount(0);
     await expect(viewport).toBeFocused();
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-vibe-slides-annotations') ?? '{}').annotations);
-    expect(saved).toEqual(expect.arrayContaining([expect.objectContaining({source: 'practice', text: 'Welcome, everyone. This is ok-vibe-slides, a presentation engine where every slide is a React component.', comment: 'j k x stay text here'})]));
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-show-annotations') ?? '{}').annotations);
+    expect(saved).toEqual(expect.arrayContaining([expect.objectContaining({source: 'practice', text: 'Welcome, everyone. This is ok-show, a presentation engine where every slide is a React component.', comment: 'j k x stay text here'})]));
     await viewport.press('j');
     await expect.poll(selected).not.toContain('Welcome, everyone.');
     await viewport.press('Escape');
@@ -150,7 +150,7 @@ for (const surface of ['drawer', 'presenter'] as const) {
     await viewport.press('x');
     await input.fill('A selection across blocks');
     await input.press('Enter');
-    const across = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-vibe-slides-annotations') ?? '{}').annotations.find((a: {comment: string}) => a.comment === 'A selection across blocks'));
+    const across = await page.evaluate(() => JSON.parse(localStorage.getItem('ok-show-annotations') ?? '{}').annotations.find((a: {comment: string}) => a.comment === 'A selection across blocks'));
     expect(across.practice.sourceEndLine).toBeGreaterThan(across.practice.sourceLine);
   });
 }

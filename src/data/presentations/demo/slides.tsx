@@ -20,9 +20,9 @@ export const slides: SlideData[] = [
     template: 'TitleSlide',
     content: (
       <TitleSlide
-        title="ok-vibe-slides Demo"
+        title="ok-show Demo"
         subtitle="A Presentation Engine"
-        brandName="ok-vibe-slides"
+        brandName="ok-show"
         company="Demo Company"
         date="May 2025"
         founderDetails={[
@@ -77,10 +77,10 @@ export const slides: SlideData[] = [
       <StatementSlide
         label="Vision"
         title="Presentations should be built with code, not dragged around in a GUI."
-        subtitle="ok-vibe-slides gives you the power of React components with the polish of a design tool."
+        subtitle="ok-show gives you the power of React components with the polish of a design tool."
         titleSize="compact"
         cta={<a className="statement-slide__cta" href="/export">Export this deck to PDF</a>}
-        footer={<span>ok-vibe-slides demo</span>}
+        footer={<span>ok-show demo</span>}
       />
     ),
   },
@@ -218,10 +218,9 @@ export const slides: SlideData[] = [
       <TableSlide
         label="Comparison"
         title="Feature Matrix"
-        subtitle="How ok-vibe-slides compares"
+        subtitle="How ok-show compares"
         columns={[
-          { header: 'Feature' },
-          { header: 'ok-vibe-slides', highlight: true },
+          { header: 'ok-show', highlight: true },
           { header: 'Slides SaaS' },
           { header: 'PowerPoint' },
         ]}

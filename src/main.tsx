@@ -15,15 +15,15 @@ import { presentations } from './project/presentations';
 import ThemeController from './components/ThemeController';
 import PresentationTitle from './components/PresentationTitle';
 import { createDebugAdapter } from './debugAdapter';
-// Last, so the project's stylesheets (`styles` in ok-vibe-slides.config) win
+// Last, so the project's stylesheets (`styles` in ok-show.config) win
 // over the engine's global styles and every template stylesheet.
-import 'virtual:ok-vibe-slides/styles';
+import 'virtual:ok-show/styles';
 
 const route = resolveAppRoute(window.location.pathname, window.location.hash);
 const appSurface = resolveAppSurface(route, import.meta.env.DEV);
 
 if (import.meta.env.VITE_ENABLE_DEBUG_CLI === 'true') {
-  window.__OK_VIBE_DEBUG__ = createDebugAdapter(store, presentations);
+  window.__OK_SHOW_DEBUG__ = createDebugAdapter(store, presentations);
 }
 
 async function mountRoute() {

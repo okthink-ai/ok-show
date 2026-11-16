@@ -7,6 +7,6 @@ try {
   // Long-running commands (dev, preview, sync) return undefined and keep the process alive.
   if (code !== undefined) process.exitCode = code;
 } catch (error) {
-  console.error(`ok-vibe-slides: ${error instanceof Error ? error.message : error}`);
+  console.error(`ok-show: ${error instanceof Error ? error.message : error}`);
   process.exitCode = 1;
 }

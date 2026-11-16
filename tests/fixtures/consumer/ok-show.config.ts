@@ -1,4 +1,4 @@
-import { defineConfig } from 'ok-vibe-slides/config';
+import { defineConfig } from 'ok-show/config';
 
 // Non-default folders, so the tests prove every path comes from this file.
 export default defineConfig({

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import type { BaseSlideProps } from 'ok-vibe-slides';
-import SlideHeader from 'ok-vibe-slides/slides/SlideHeader';
+import type { BaseSlideProps } from 'ok-show';
+import SlideHeader from 'ok-show/slides/SlideHeader';
 import './QuoteSlide.css';
 
 interface QuoteSlideProps extends BaseSlideProps {

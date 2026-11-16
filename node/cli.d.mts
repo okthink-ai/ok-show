@@ -9,7 +9,7 @@ export interface CliOptions {
   port?: number;
   host?: string | true;
   help?: true;
-  /** init: target folder, deck id, title, ok-vibe-slides dependency spec. */
+  /** init: target folder, deck id, title, ok-show dependency spec. */
   dir?: string;
   deck?: string;
   title?: string;

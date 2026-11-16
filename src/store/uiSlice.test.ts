@@ -60,7 +60,7 @@ describe('navigation hint', () => {
 
   it('restores the seen flag from storage, and tolerates unavailable storage', async () => {
     vi.resetModules();
-    vi.stubGlobal('localStorage', { getItem: (key: string) => (key === 'ok-vibe-slides-nav-hint-seen' ? 'true' : null) });
+    vi.stubGlobal('localStorage', { getItem: (key: string) => (key === 'ok-show-nav-hint-seen' ? 'true' : null) });
     const restored = await import('./uiSlice');
     expect(restored.default(undefined, { type: 'x' }).navHintSeen).toBe(true);
 
@@ -83,7 +83,7 @@ describe('navigation hint', () => {
     const slice = await import('./uiSlice');
     expect(data.has(slice.NAV_HINT_SEEN_KEY)).toBe(false);
     store.dispatch(slice.markNavHintSeen());
-    expect(data.get('ok-vibe-slides-nav-hint-seen')).toBe('true');
+    expect(data.get('ok-show-nav-hint-seen')).toBe('true');
     vi.unstubAllGlobals();
   });
 });

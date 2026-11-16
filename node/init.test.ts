@@ -30,7 +30,7 @@ describe('planInit', () => {
     expect(title).toBe('Launch Talk');
     const deck = 'src/data/presentations/launch-talk';
     for (const file of [
-      'package.json', '.gitignore', 'ok-vibe-slides.config.ts', 'tsconfig.json', 'README.md', 'AGENTS.md',
+      'package.json', '.gitignore', 'ok-show.config.ts', 'tsconfig.json', 'README.md', 'AGENTS.md',
       'src/styles/brand.css', 'public/favicon.svg', 'src/data/presentations/index.ts',
       `${deck}/index.ts`, `${deck}/slides.tsx`, `${deck}/notes.mjs`, `${deck}/sparkle.mjs`, `${deck}/manuscript.md`,
     ]) {
@@ -56,7 +56,7 @@ describe('planInit', () => {
     expect(files.get('src/data/presentations/index.ts')).toContain("import { deck2026Kickoff } from './2026-kickoff';");
     expect(files.get('src/data/presentations/2026-kickoff/index.ts')).toContain('title: "Kickoff \\"26\\""');
     expect(files.get('src/data/presentations/2026-kickoff/index.ts')).toContain('date: "November 2026"');
-    expect(files.get('ok-vibe-slides.config.ts')).toContain('title: "Kickoff \\"26\\""');
+    expect(files.get('ok-show.config.ts')).toContain('title: "Kickoff \\"26\\""');
     expect(files.get('src/data/presentations/2026-kickoff/manuscript.md')).toMatch(/^# Kickoff "26"$/m);
   });
 
@@ -77,7 +77,7 @@ describe('planInit', () => {
           const found = [target, `${target}.tsx`, `${target}.ts`, `${target}/index.ts`].some((path) => files.has(path));
           expect(found, `${file} imports ${specifier}`).toBe(true);
         } else {
-          expect(specifier, file).toMatch(/^(ok-vibe-slides(\/(slides|components)\/[A-Z]\w*)?|ok-vibe-slides\/config|react(\/.*)?)$/);
+          expect(specifier, file).toMatch(/^(ok-show(\/(slides|components)\/[A-Z]\w*)?|ok-show\/config|react(\/.*)?)$/);
         }
       }
     }
@@ -118,9 +118,9 @@ describe('planInit', () => {
     const pkg = JSON.parse(files.get('package.json')!);
     expect(pkg.name).toBe('mine');
     expect(pkg.scripts.dev).toBe('custom dev');
-    expect(pkg.scripts.build).toBe('ok-vibe-slides build');
+    expect(pkg.scripts.build).toBe('ok-show build');
     expect(pkg.dependencies.react).toBe('18.0.0');
-    expect(pkg.dependencies['ok-vibe-slides']).toBe('file:../engine');
+    expect(pkg.dependencies['ok-show']).toBe('file:../engine');
     expect(pkg.devDependencies.typescript).toBeDefined();
     expect(files.get('.gitignore')).toBe('node_modules/\ncoverage\ndist\n.tmp\n.speaker-sync\n.env\n*.local\n');
   });
@@ -129,7 +129,7 @@ describe('planInit', () => {
     const pkg = JSON.parse(plan().files.get('package.json')!);
     expect(pkg).toMatchObject({ name: 'launch-talk', private: true, type: 'module' });
     expect(Object.keys(pkg.scripts)).toEqual(['dev', 'build', 'preview', 'type-check', 'audit', 'debug']);
-    expect(Object.keys(pkg.dependencies)).toEqual(['ok-vibe-slides', 'react', 'react-dom']);
+    expect(Object.keys(pkg.dependencies)).toEqual(['ok-show', 'react', 'react-dom']);
   });
 });
 
@@ -170,10 +170,10 @@ describe('rewriteImports', () => {
     expect(rewrite("import SlideHeader from './SlideHeader';")).toBe("import SlideHeader from './SlideHeader';");
     expect(rewrite("import './TitleSlide.css';")).toBe("import './TitleSlide.css';");
     expect(rewrite("import type { BaseSlideProps } from '../../types/slide.types';"))
-      .toBe("import type { BaseSlideProps } from 'ok-vibe-slides';");
+      .toBe("import type { BaseSlideProps } from 'ok-show';");
     expect(rewrite("import VideoOverlay from '../VideoOverlay';"))
-      .toBe("import VideoOverlay from 'ok-vibe-slides/components/VideoOverlay';");
-    expect(rewrite("import QuoteSlide from './QuoteSlide';")).toBe("import QuoteSlide from 'ok-vibe-slides/slides/QuoteSlide';");
+      .toBe("import VideoOverlay from 'ok-show/components/VideoOverlay';");
+    expect(rewrite("import QuoteSlide from './QuoteSlide';")).toBe("import QuoteSlide from 'ok-show/slides/QuoteSlide';");
   });
 
   it('refuses imports the package does not export', () => {
@@ -196,15 +196,15 @@ describe('helpers', () => {
 
   it('reuses the spec an installed engine came from, or else the GitHub repository', () => {
     const installer = tempProject('installer');
-    const engine = join(installer, 'node_modules/ok-vibe-slides');
+    const engine = join(installer, 'node_modules/ok-show');
     mkdirSync(engine, { recursive: true });
     const install = (dependencies: Record<string, string>) =>
       writeFileSync(join(installer, 'package.json'), JSON.stringify({ dependencies }));
 
-    install({ 'ok-vibe-slides': 'github:okthink-ai/ok-vibe-slides#v1.2.0' });
-    expect(defaultEngineSpec('/anywhere/talk', engine)).toBe('github:okthink-ai/ok-vibe-slides#v1.2.0');
+    install({ 'ok-show': 'github:okthink-ai/ok-show#v1.2.0' });
+    expect(defaultEngineSpec('/anywhere/talk', engine)).toBe('github:okthink-ai/ok-show#v1.2.0');
     // A path only makes sense from the installing project.
-    install({ 'ok-vibe-slides': 'file:../ok-vibe-slides' });
+    install({ 'ok-show': 'file:../ok-show' });
     expect(defaultEngineSpec('/anywhere/talk', engine)).toBe(GITHUB_SPEC);
     rmSync(join(installer, 'package.json'));
     expect(defaultEngineSpec('/anywhere/talk', engine)).toBe(GITHUB_SPEC);

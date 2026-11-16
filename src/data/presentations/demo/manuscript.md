@@ -1,4 +1,4 @@
-# ok-vibe-slides Demo
+# ok-show Demo
 
 ## Context for agents
 
@@ -8,7 +8,7 @@ This is the practice manuscript for this deck. The presenter view's Practice tab
 
 <!-- slide:demo-title -->
 
-Welcome, everyone. This is ok-vibe-slides, a presentation engine where every slide is a React component. You write the deck in code, review it in the browser, and present it from the same project.
+Welcome, everyone. This is ok-show, a presentation engine where every slide is a React component. You write the deck in code, review it in the browser, and present it from the same project.
 
 <!-- slide:demo-toc -->
 

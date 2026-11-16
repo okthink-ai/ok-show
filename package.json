@@ -1,16 +1,16 @@
 {
-  "name": "ok-vibe-slides",
+  "name": "ok-show",
   "private": true,
   "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/okthink-ai/ok-vibe-slides.git"
+    "url": "git+https://github.com/okthink-ai/ok-show.git"
   },
   "description": "Presentation engine with slide templates, annotations, and inspector mode",
   "type": "module",
   "bin": {
-    "ok-vibe-slides": "bin/ok-vibe-slides.mjs"
+    "ok-show": "bin/ok-show.mjs"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -42,16 +42,16 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "dev": "node bin/ok-vibe-slides.mjs dev",
+    "dev": "node bin/ok-show.mjs dev",
     "dev:vite": "vite",
-    "dev:sync": "node bin/ok-vibe-slides.mjs sync",
-    "sparkle": "node bin/ok-vibe-slides.mjs sparkle",
-    "debug": "node bin/ok-vibe-slides.mjs debug",
-    "slides:audit": "node bin/ok-vibe-slides.mjs audit",
-    "slides:audit:json": "node bin/ok-vibe-slides.mjs audit --json",
-    "build": "tsc -b && node bin/ok-vibe-slides.mjs build",
+    "dev:sync": "node bin/ok-show.mjs sync",
+    "sparkle": "node bin/ok-show.mjs sparkle",
+    "debug": "node bin/ok-show.mjs debug",
+    "slides:audit": "node bin/ok-show.mjs audit",
+    "slides:audit:json": "node bin/ok-show.mjs audit --json",
+    "build": "tsc -b && node bin/ok-show.mjs build",
     "lint": "eslint .",
-    "preview": "node bin/ok-vibe-slides.mjs preview",
+    "preview": "node bin/ok-show.mjs preview",
     "type-check": "tsc -b",
     "test": "vitest run",
     "test:browser": "playwright test",

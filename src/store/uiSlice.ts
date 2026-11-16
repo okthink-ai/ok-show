@@ -4,14 +4,14 @@ import type { AspectRatio } from '../types/slide.types';
 import { isThemeId, type ThemeId } from '../themes';
 import type { PresenterTimerState } from '../utils/presenterTimer';
 
-export const THEME_STORAGE_KEY = 'ok-vibe-slides-theme';
+export const THEME_STORAGE_KEY = 'ok-show-theme';
 export const PRESENTER_NEXT_KEY = 'speaker-notes-show-next';
 export const PRESENTER_MODE_KEY = 'speaker-notes-reading-mode';
 export const PRACTICE_TEXT_SIZE_KEY = 'speaker-notes-practice-text-size';
 export const PRESENTER_TALK_MINUTES_KEY = 'speaker-notes-talk-minutes';
 export const PRESENTER_PRESENTING_KEY = 'speaker-notes-presenting';
 export const PRESENTER_TIMER_KEY = 'speaker-notes-timer';
-export const NAV_HINT_SEEN_KEY = 'ok-vibe-slides-nav-hint-seen';
+export const NAV_HINT_SEEN_KEY = 'ok-show-nav-hint-seen';
 
 /** One reading size serves both the notes and the practice manuscript. */
 export const READING_SIZE_MIN = 16;
@@ -69,8 +69,8 @@ function loadPresenterShowNext(): boolean {
   try { return localStorage.getItem(PRESENTER_NEXT_KEY) !== 'false'; } catch { return true; }
 }
 
-export const SIDEBAR_STORAGE_KEY = 'ok-vibe-slides-sidebar';
-export const DRAWER_WIDTH_KEY = 'ok-vibe-slides-developer-tools-width';
+export const SIDEBAR_STORAGE_KEY = 'ok-show-sidebar';
+export const DRAWER_WIDTH_KEY = 'ok-show-developer-tools-width';
 export const DRAWER_DEFAULT_WIDTH = 460;
 export const DRAWER_MIN_WIDTH = 340;
 export const DRAWER_MAX_WIDTH = 900;

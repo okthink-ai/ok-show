@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const KEY = 'ok-vibe-slides-nav-hint-seen';
+const KEY = 'ok-show-nav-hint-seen';
 const MOBILE = { width: 390, height: 844 };
 
 test('phone visitors see the tap-zone hint once, and it never blocks navigation', async ({ page }) => {

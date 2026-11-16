@@ -56,7 +56,7 @@ export function compilePracticeMarkdown(source: string, presentationId: string):
 /** Compiles `<presentationsDir>/<id>/manuscript.md?practice` into reader HTML plus its source. */
 export function practiceMarkdownPlugin({ presentationsDir }: { presentationsDir: string }): Plugin {
   return {
-    name: 'ok-vibe-slides:practice-markdown', enforce: 'pre',
+    name: 'ok-show:practice-markdown', enforce: 'pre',
     async load(id) {
       if (!id.endsWith('.md?practice')) return;
       const file = id.slice(0, -'?practice'.length);

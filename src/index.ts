@@ -1,12 +1,12 @@
 /**
- * ok-vibe-slides public API for projects that install the engine as a
+ * ok-show public API for projects that install the engine as a
  * package: slide types and the built-in templates. The app shell, tools, and
- * dev server come from the `ok-vibe-slides` CLI, not from this module.
+ * dev server come from the `ok-show` CLI, not from this module.
  *
  * Importing a template from here loads every built-in template's stylesheet.
  * A project that replaces a built-in template with its own copy (same class
  * names) should import the built-ins it keeps one by one instead:
- * `import BulletSlide from 'ok-vibe-slides/slides/BulletSlide'`.
+ * `import BulletSlide from 'ok-show/slides/BulletSlide'`.
  */
 export type {
   AspectRatio,

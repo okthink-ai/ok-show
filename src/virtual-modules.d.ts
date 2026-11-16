@@ -1,16 +1,16 @@
-// Modules the ok-vibe-slides Vite plugin generates from the project's config (see node/vite.ts).
+// Modules the ok-show Vite plugin generates from the project's config (see node/vite.ts).
 
-declare module 'virtual:ok-vibe-slides/presentations' {
+declare module 'virtual:ok-show/presentations' {
   /** The project's deck registry: `<presentationsDir>/index.ts`'s `presentations` export. */
   export const presentations: import('./types/slide.types').Presentation[];
 }
 
-declare module 'virtual:ok-vibe-slides/manuscripts' {
+declare module 'virtual:ok-show/manuscripts' {
   /** Compiled `<presentationsDir>/<id>/manuscript.md` files keyed by presentation ID. */
   export const manuscripts: Record<string, { html: string; source: string }>;
 }
 
-declare module 'virtual:ok-vibe-slides/project' {
+declare module 'virtual:ok-show/project' {
   /** Project-relative folder holding the deck folders. */
   export const presentationsDir: string;
   /** Project-relative path of the engine package, with a trailing slash; '' inside the engine repository. */
@@ -19,6 +19,6 @@ declare module 'virtual:ok-vibe-slides/project' {
   export const templateStylesheets: Record<string, string>;
 }
 
-declare module 'virtual:ok-vibe-slides/styles' {
+declare module 'virtual:ok-show/styles' {
   // Side-effect imports of the project's `styles`; there are no exports.
 }

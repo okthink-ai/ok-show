@@ -62,7 +62,7 @@ const SlideInfoSidebar: FC<SlideInfoSidebarProps> = ({
     <div className="slide-info-sidebar">
       <div className="slide-info-sidebar__header">
         <div className="slide-info-sidebar__branding">
-          Built with <span className="slide-info-sidebar__brand">ok-vibe-slides</span>
+          Built with <span className="slide-info-sidebar__brand">ok-show</span>
         </div>
         <h3 className="slide-info-sidebar__title">Slide Info</h3>
       </div>

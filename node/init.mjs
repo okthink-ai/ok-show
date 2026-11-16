@@ -5,7 +5,7 @@ import process from 'node:process';
 import { DEFAULTS, ENGINE_ROOT, PACKAGE_NAME } from './project.mjs';
 
 /**
- * `ok-vibe-slides init` scaffolds a project that uses the engine as a
+ * `ok-show init` scaffolds a project that uses the engine as a
  * package. It copies the files an author edits while making a talk (the demo
  * deck, its speaker notes, Sparkle prompts and manuscript, the slide
  * templates, a brand stylesheet, the favicon) and leaves the app shell, tools,
@@ -42,12 +42,12 @@ function identifierFor(deckId) {
 }
 
 /** The engine's GitHub repository (package.json `repository`), as an install spec. */
-export const GITHUB_SPEC = 'github:okthink-ai/ok-vibe-slides';
+export const GITHUB_SPEC = 'github:okthink-ai/ok-show';
 
 /**
- * The `ok-vibe-slides` dependency the new project installs. An installed
+ * The `ok-show` dependency the new project installs. An installed
  * engine (including an `npx github:…` run) reuses the spec it was installed
- * with, such as `github:okthink-ai/ok-vibe-slides#v1.0.0`, or else the
+ * with, such as `github:okthink-ai/ok-show#v1.0.0`, or else the
  * package's GitHub repository. An engine checkout is linked with `file:`.
  */
 export function defaultEngineSpec(targetDir, engineRoot = ENGINE_ROOT) {
@@ -115,12 +115,12 @@ function renameSlideIds(files, deckId) {
 function packageJson({ name, engineSpec, existing }) {
   const engine = enginePackage();
   const scripts = {
-    dev: 'ok-vibe-slides dev',
-    build: 'ok-vibe-slides build',
-    preview: 'ok-vibe-slides preview',
+    dev: 'ok-show dev',
+    build: 'ok-show build',
+    preview: 'ok-show preview',
     'type-check': 'tsc --noEmit',
-    audit: 'ok-vibe-slides audit',
-    debug: 'ok-vibe-slides debug',
+    audit: 'ok-show audit',
+    debug: 'ok-show debug',
   };
   const dependencies = {
     [PACKAGE_NAME]: engineSpec,
@@ -154,7 +154,7 @@ function gitignore(existing) {
   return `${existing}${existing.endsWith('\n') || existing === '' ? '' : '\n'}${missing.join('\n')}\n`;
 }
 
-const configFile = (title) => `import { defineConfig } from 'ok-vibe-slides/config';
+const configFile = (title) => `import { defineConfig } from 'ok-show/config';
 
 // Every option is optional. The commented values are the defaults.
 export default defineConfig({
@@ -164,7 +164,7 @@ export default defineConfig({
   // presentationsDir: '${DEFAULTS.presentationsDir}', // deck folders and their index.ts registry
   // templatesDir: '${DEFAULTS.templatesDir}',     // your slide templates
   // publicDir: '${DEFAULTS.publicDir}',                         // images, video, favicon
-  // outDir: '${DEFAULTS.outDir}',                              // ok-vibe-slides build output
+  // outDir: '${DEFAULTS.outDir}',                              // ok-show build output
   // head: '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">',
   // vite: {},                                     // merged over the engine's Vite config
 });
@@ -185,9 +185,9 @@ const TSCONFIG = `${JSON.stringify({
     noUnusedLocals: true,
     noUnusedParameters: true,
     skipLibCheck: true,
-    types: ['ok-vibe-slides/client'],
+    types: ['ok-show/client'],
   },
-  include: ['src', 'ok-vibe-slides.config.ts'],
+  include: ['src', 'ok-show.config.ts'],
 }, null, 2)}\n`;
 
 /**
@@ -230,7 +230,7 @@ export function planInit({ targetDir, deckId, title, engineSpec, date = new Date
     existing: parsedPackage,
   }), null, 2)}\n`);
   files.set('.gitignore', gitignore(readExisting('.gitignore')));
-  files.set('ok-vibe-slides.config.ts', configFile(deckTitle));
+  files.set('ok-show.config.ts', configFile(deckTitle));
   files.set('tsconfig.json', TSCONFIG);
   for (const name of ['README.md', 'AGENTS.md']) {
     const text = readFileSync(join(STARTER_FILES, name), 'utf8');
@@ -264,7 +264,7 @@ export function planInit({ targetDir, deckId, title, engineSpec, date = new Date
 
   const identifier = identifierFor(deck);
   const month = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-  files.set(`${deckDir}/index.ts`, `import type { Presentation } from 'ok-vibe-slides';
+  files.set(`${deckDir}/index.ts`, `import type { Presentation } from 'ok-show';
 import { slides } from './slides';
 
 export const ${identifier}: Presentation = {
@@ -275,7 +275,7 @@ export const ${identifier}: Presentation = {
   slides,
 };
 `);
-  files.set(`${DEFAULTS.presentationsDir}/index.ts`, `import type { Presentation } from 'ok-vibe-slides';
+  files.set(`${DEFAULTS.presentationsDir}/index.ts`, `import type { Presentation } from 'ok-show';
 import { ${identifier} } from './${deck}';
 
 /** Every deck in this project, in the order the deck picker lists them. */
@@ -319,9 +319,9 @@ function install(root, manager) {
   });
 }
 
-export const INIT_HELP = `ok-vibe-slides init — create a project that uses ok-vibe-slides as a package
+export const INIT_HELP = `ok-show init — create a project that uses ok-show as a package
 
-Usage: ok-vibe-slides init [dir] [options]
+Usage: ok-show init [dir] [options]
 
 Copies the files you edit while making a talk into [dir] (default: the
 current folder): a starter deck with speaker notes, Sparkle prompts and a
@@ -332,21 +332,21 @@ installed package.
 Options:
   --deck <id>      Deck id and folder name (default: the folder name)
   --title <text>   Deck and page title (default: from the deck id)
-  --engine <spec>  ok-vibe-slides dependency in package.json, such as
-                   github:okthink-ai/ok-vibe-slides#v1.0.0 (default: the spec
+  --engine <spec>  ok-show dependency in package.json, such as
+                   github:okthink-ai/ok-show#v1.0.0 (default: the spec
                    this copy was installed with, or a file: path to a checkout)
   --install        Run the package manager's install afterwards
   --force          Overwrite files that already exist
 `;
 
-/** Runs `ok-vibe-slides init`. Resolves to an exit code. */
+/** Runs `ok-show init`. Resolves to an exit code. */
 export async function init({ dir, deck, title, engine, install: runInstall = false, force = false } = {}) {
   const plan = planInit({ targetDir: dir ?? process.cwd(), deckId: deck, title, engineSpec: engine });
   const { overwritten } = writeInit(plan, { force });
   const where = relative(process.cwd(), plan.root) || '.';
   const manager = packageManager();
 
-  console.log(`\n  Created an ok-vibe-slides project in ${where}${overwritten.length ? ` (overwrote ${overwritten.length} files)` : ''}`);
+  console.log(`\n  Created an ok-show project in ${where}${overwritten.length ? ` (overwrote ${overwritten.length} files)` : ''}`);
   console.log(`  Your deck is in ${DEFAULTS.presentationsDir}/${plan.deckId}/ and the templates in ${DEFAULTS.templatesDir}/.`);
   console.log('  README.md describes every file.');
 

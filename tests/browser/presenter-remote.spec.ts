@@ -84,13 +84,13 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
       await expect(notes).toContainText('Frame the demo around templates');
       await phone.getByRole('button', { name: 'Previous slide', exact: true }).click();
       await expect.poll(() => new URL(presentation.url()).searchParams.get('slide')).toBe('1');
-      await presentation.evaluate(() => window.__OK_VIBE_DEBUG__!.goToSlide(2));
+      await presentation.evaluate(() => window.__OK_SHOW_DEBUG__!.goToSlide(2));
       await expect(slideCount).toHaveText(/^2 out of \d+$/);
       await phone.getByRole('button', { name: 'Previous slide', exact: true }).click();
       await expect.poll(() => new URL(presentation.url()).searchParams.get('slide')).toBe('1');
       await expect(phone.getByRole('button', { name: 'Previous slide', exact: true })).toBeDisabled();
-      const last = await presentation.evaluate(() => window.__OK_VIBE_DEBUG__!.getSnapshot().slideCount);
-      await presentation.evaluate((index) => window.__OK_VIBE_DEBUG__!.goToSlide(index), last);
+      const last = await presentation.evaluate(() => window.__OK_SHOW_DEBUG__!.getSnapshot().slideCount);
+      await presentation.evaluate((index) => window.__OK_SHOW_DEBUG__!.goToSlide(index), last);
       await expect(next).toContainText('End of presentation');
       await expect(slideCount).toHaveText(`${last} out of ${last}`);
       await expect(advance).toBeDisabled();

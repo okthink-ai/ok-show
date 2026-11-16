@@ -56,13 +56,13 @@ src/
         manuscript.md  - Full talk for Practice mode, with slide cue markers
 src/project/           - Reads the project's deck registry and review-packet paths from the virtual modules
 src/index.ts           - Package entry: types, templates, and helpers decks import
-src/client.d.ts        - Types for the virtual modules (`ok-vibe-slides/client`)
-bin/ok-vibe-slides.mjs - The `ok-vibe-slides` CLI
+src/client.d.ts        - Types for the virtual modules (`ok-show/client`)
+bin/ok-show.mjs - The `ok-show` CLI
 node/
   cli.mjs              - CLI commands: init, dev, build, preview, sync, debug, audit, sparkle, info
   init.mjs             - `init`: copies the editable files into a new project
   init/                - Starter README.md, AGENTS.md, and brand.css that `init` fills in
-  project.mjs          - Loads and validates ok-vibe-slides.config.*
+  project.mjs          - Loads and validates ok-show.config.*
   vite.ts              - Vite config and plugin: virtual modules, project head/styles/public files
 server/
   sync-server.mjs      - WebSocket server: auth, notes delivery, session routing
@@ -89,16 +89,16 @@ tests/fixtures/consumer/ - A minimal consumer project used by tests/package
   sections through the panel registry in `App.tsx` and the `SidebarType`
   contract in `uiSlice.ts`; do not add a standalone sidebar.
 
-## Using ok-vibe-slides as a Package
+## Using ok-show as a Package
 
 Decks no longer need a fork of this repository. A project installs
-`ok-vibe-slides` and runs its CLI, the way an Astro site runs `astro dev`:
+`ok-show` and runs its CLI, the way an Astro site runs `astro dev`:
 
 ```bash
-npx github:okthink-ai/ok-vibe-slides init my-talk --install
-# or: npm install github:okthink-ai/ok-vibe-slides react react-dom
-npx ok-vibe-slides dev     # authoring server with all developer tools
-npx ok-vibe-slides build   # public site in dist/
+npx github:okthink-ai/ok-show init my-talk --install
+# or: npm install github:okthink-ai/ok-show react react-dom
+npx ok-show dev     # authoring server with all developer tools
+npx ok-show build   # public site in dist/
 ```
 
 - **`init`** (`node/init.mjs`) copies what an author edits into the project:
@@ -111,7 +111,7 @@ npx ok-vibe-slides build   # public site in dist/
   a new engine module, export it from the package or `init` breaks
   (`node/init.test.ts` and `tests/package/init.test.ts` catch this).
 - **Distribution:** the package is installed from GitHub
-  (`github:okthink-ai/ok-vibe-slides#<ref>`), not the npm registry. A git
+  (`github:okthink-ai/ok-show#<ref>`), not the npm registry. A git
   install gets only the `files` in `package.json` and only `dependencies`,
   so anything the CLI or the app needs at runtime must be a dependency, not
   a devDependency. `init` writes the spec it was installed with into the new
@@ -119,16 +119,16 @@ npx ok-vibe-slides build   # public site in dist/
 
 The engine stays the Vite root. The project supplies decks, templates,
 public files, and styles, which the engine loads through virtual modules
-(`virtual:ok-vibe-slides/presentations`, `/manuscripts`, `/project`,
+(`virtual:ok-show/presentations`, `/manuscripts`, `/project`,
 `/styles`). This repository is itself a project: its scripts run the same CLI.
 
 - **Layout:** by default the project keeps decks in `src/data/presentations/`
   (with an `index.ts` exporting `presentations`), project-local templates in
   `src/components/slides/`, and static files in `public/`. Engine public files
   the project does not override (favicon, placeholders) are still served.
-- **Config:** optional `ok-vibe-slides.config.{ts,mts,js,mjs}` in the project root:
+- **Config:** optional `ok-show.config.{ts,mts,js,mjs}` in the project root:
   ```typescript
-  import { defineConfig } from 'ok-vibe-slides/config';
+  import { defineConfig } from 'ok-show/config';
 
   export default defineConfig({
     presentationsDir: 'src/data/presentations', // deck registry folder
@@ -156,16 +156,16 @@ public files, and styles, which the engine loads through virtual modules
   (not wrapped), because the engine passes `orientation` to it. See "Your Own
   Templates" in the README.
 - **Imports in decks and templates:**
-  - `import type { Presentation, SlideData } from 'ok-vibe-slides'` for types and helpers;
-  - `import TitleSlide from 'ok-vibe-slides/slides/TitleSlide'` for one template;
-  - `import VideoOverlay from 'ok-vibe-slides/components/VideoOverlay'` for one component.
+  - `import type { Presentation, SlideData } from 'ok-show'` for types and helpers;
+  - `import TitleSlide from 'ok-show/slides/TitleSlide'` for one template;
+  - `import VideoOverlay from 'ok-show/components/VideoOverlay'` for one component.
 
-  Prefer the deep imports. The `ok-vibe-slides` entry pulls in every
+  Prefer the deep imports. The `ok-show` entry pulls in every
   template's CSS.
 - **Types:** the project's `tsconfig.json` needs
-  `"types": ["ok-vibe-slides/client"]` in `compilerOptions`; `init` writes it.
-- **Other commands:** `ok-vibe-slides debug …`, `audit`, `sparkle …`, `sync`,
-  `preview`, `info` (prints the resolved config). Run `ok-vibe-slides help`.
+  `"types": ["ok-show/client"]` in `compilerOptions`; `init` writes it.
+- **Other commands:** `ok-show debug …`, `audit`, `sparkle …`, `sync`,
+  `preview`, `info` (prints the resolved config). Run `ok-show help`.
 - **Shared dependencies:** React, React DOM, Redux Toolkit, and React Redux are
   deduped, so a symlinked or `file:` install still uses one copy.
 - **No private dependencies:** nothing from the private `@okthink-ai` scope,
@@ -180,7 +180,7 @@ The app supports multiple presentations. Each presentation lives in `src/data/pr
 // src/data/presentations/demo/index.ts
 export const demo: Presentation = {
   id: 'demo',                          // URL-safe ID
-  title: 'ok-vibe-slides Demo',
+  title: 'ok-show Demo',
   description: 'Showcases all available slide templates',
   date: 'May 2025',
   slides,                               // Imported from ./slides.tsx
@@ -258,7 +258,7 @@ When adding a new slide template component to `src/components/slides/`:
 
 - The dev server runs on port **5199**, or the next free port (see
   `node/vite.ts`; `--port` makes the port strict)
-- `npm run dev` (`ok-vibe-slides dev`) starts the notes-sync service (internal port 5200), enables the
+- `npm run dev` (`ok-show dev`) starts the notes-sync service (internal port 5200), enables the
   debug adapter, and starts Vite. Vite proxies `/speaker-sync`, so only port
   5199 needs to be open.
 - The control token is never put in the page bundle. `npm run dev` prints deck

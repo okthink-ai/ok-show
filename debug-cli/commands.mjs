@@ -144,7 +144,7 @@ async function screenshotSlidesCommand({ flags, ctx }) {
   const result = await ctx.withPage(false, async (page) => {
     const initial = await ctx.appState(page);
     const presentationId = flags.presentation ?? initial.presentationId;
-    const slideCount = await page.evaluate((id) => window.__OK_VIBE_DEBUG__?.getSlides(id).length ?? 0, presentationId);
+    const slideCount = await page.evaluate((id) => window.__OK_SHOW_DEBUG__?.getSlides(id).length ?? 0, presentationId);
     if (!slideCount) throw new Error(`No slides found for presentation ${presentationId}`);
     const files = [];
     try {
@@ -295,7 +295,7 @@ export const COMMANDS = {
     ctx.output(result, flags);
   },
   slides: async ({ flags, ctx }) => {
-    const result = await ctx.withPage(false, (page) => page.evaluate((requested) => window.__OK_VIBE_DEBUG__?.getSlides(requested) ?? [], flags.presentation));
+    const result = await ctx.withPage(false, (page) => page.evaluate((requested) => window.__OK_SHOW_DEBUG__?.getSlides(requested) ?? [], flags.presentation));
     ctx.output(result, flags);
   },
   go: async ({ first, flags, ctx }) => {

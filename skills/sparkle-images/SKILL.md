@@ -5,7 +5,7 @@ description: Generate styled raster images through the public Sparkle API (spark
 
 # Sparkle Images
 
-Use the public Sparkle API through the project's CLI. Do not substitute OpenAI, Gemini, fal, or another provider API directly: Sparkle owns model routing, billing, saved styles, and job history. Run it as `npx ok-vibe-slides sparkle ...` (`npm run sparkle -- ...` inside the ok-vibe-slides repo); do not invoke a skill-local wrapper.
+Use the public Sparkle API through the project's CLI. Do not substitute OpenAI, Gemini, fal, or another provider API directly: Sparkle owns model routing, billing, saved styles, and job history. Run it as `npx ok-show sparkle ...` (`npm run sparkle -- ...` inside the ok-show repo); do not invoke a skill-local wrapper.
 
 ## Workflow
 

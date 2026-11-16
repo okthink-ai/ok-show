@@ -1,8 +1,8 @@
 # {{title}}
 
-Slides built with [ok-vibe-slides](https://github.com/okthink-ai/ok-vibe-slides).
+Slides built with [ok-show](https://github.com/okthink-ai/ok-show).
 The engine (app shell, presenter view, authoring tools, dev server) comes
-from the `ok-vibe-slides` package. This project holds what you edit.
+from the `ok-show` package. This project holds what you edit.
 
 ## Commands
 
@@ -21,16 +21,16 @@ terminal: each carries the control token that speaker notes and sync need.
 
 ## Updating the engine
 
-`ok-vibe-slides` installs from GitHub, not the npm registry, so
-`package.json` lists it as `github:okthink-ai/ok-vibe-slides`, optionally
+`ok-show` installs from GitHub, not the npm registry, so
+`package.json` lists it as `github:okthink-ai/ok-show`, optionally
 with `#<tag-or-branch>`. The repository is private: `npm install` needs git
-access to it, the same access `git clone git@github.com:okthink-ai/ok-vibe-slides.git`
+access to it, the same access `git clone git@github.com:okthink-ai/ok-show.git`
 needs.
 
 To change versions, or to pick up new commits on a branch, install it again:
 
 ```bash
-npm install github:okthink-ai/ok-vibe-slides#<tag-or-branch>
+npm install github:okthink-ai/ok-show#<tag-or-branch>
 ```
 
 The templates and starter files in this project are copies. Updating the
@@ -49,7 +49,7 @@ engine doesn't change them, so your edits are safe.
 | `src/components/slides/` | Slide templates (`Name.tsx` + `Name.css`). Copies of the built-ins: change them freely. |
 | `src/styles/brand.css` | Brand tokens: colors, fonts, radii. |
 | `public/` | Images, video, and the favicon, served at `/`. |
-| `ok-vibe-slides.config.ts` | Page title, stylesheets, `head` tags, folders. |
+| `ok-show.config.ts` | Page title, stylesheets, `head` tags, folders. |
 
 ## Adding a deck
 
@@ -64,8 +64,8 @@ The templates in `src/components/slides/` started as copies of the engine's
 built-ins. Your copies are the ones the deck imports, so edit them directly,
 or add new ones next to them: `QuoteSlide.tsx` plus `QuoteSlide.css` with the
 root class `quote-slide`. Import templates from this folder, not from the
-`ok-vibe-slides` package root, which loads every built-in stylesheet and
+`ok-show` package root, which loads every built-in stylesheet and
 would compete with your copies.
 
-The engine's README, in `node_modules/ok-vibe-slides/README.md`, documents
+The engine's README, in `node_modules/ok-show/README.md`, documents
 every template's props, the brand tokens, annotations, and the debug CLI.

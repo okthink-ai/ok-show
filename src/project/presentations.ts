@@ -1,4 +1,4 @@
-import { presentations } from 'virtual:ok-vibe-slides/presentations';
+import { presentations } from 'virtual:ok-show/presentations';
 import type { Presentation } from '../types/slide.types';
 
 export { presentations };

@@ -21,7 +21,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
       await expect(remote.locator('.speaker-notes__status')).toHaveAttribute('aria-label', 'connected');
       await remote.getByRole('tab', { name: 'Practice', exact: true }).click();
       const manuscript = remote.locator('.talk-practice__viewport');
-      await expect(manuscript.getByRole('heading', { name: 'ok-vibe-slides Demo', exact: true })).toBeAttached();
+      await expect(manuscript.getByRole('heading', { name: 'ok-show Demo', exact: true })).toBeAttached();
       await expect(manuscript.getByRole('heading', { name: 'Closing', exact: true })).toBeAttached();
       expect(new URL(presentation.url()).searchParams.get('slide')).toBe('5');
       await expect(remote.locator('[data-practice-cue="4"]').first()).toHaveAttribute('data-active', 'true');
@@ -99,7 +99,7 @@ test('practice keeps reading available while disconnected without changing slide
   await expect(page.locator('[data-practice-cue="1"]').first()).toHaveAttribute('data-active', 'true');
   await expect(page.locator('[data-practice-cue="1"]').first()).toHaveAttribute('aria-disabled', 'true');
   await page.locator('[data-practice-cue="1"]').first().evaluate((button: HTMLButtonElement) => button.click());
-  expect(await page.evaluate(() => window.__OK_VIBE_DEBUG__!.getSnapshot().currentSlide)).toBe(1);
+  expect(await page.evaluate(() => window.__OK_SHOW_DEBUG__!.getSnapshot().currentSlide)).toBe(1);
   await expect(page.getByText('Slide control is disconnected')).toBeVisible();
 });
 
@@ -126,7 +126,7 @@ test('returning to Practice aligns to a changed slide and Top respects paused fo
     await remote.getByRole('button', { name: 'Scroll to top', exact: true }).click();
     await expect.poll(() => reader.evaluate((element) => element.scrollTop)).toBe(0);
     await expect.poll(() => new URL(presentation.url()).searchParams.get('slide')).toBe('1');
-    await expect(reader).toHaveAttribute('data-reading-text', 'ok-vibe-slides Demo');
+    await expect(reader).toHaveAttribute('data-reading-text', 'ok-show Demo');
     // The navigation echo must not scroll from the document top to the slide-1 cue.
     await remote.getByRole('tab', { name: 'Notes', exact: true }).click();
     await remote.getByRole('tab', { name: 'Practice', exact: true }).click();

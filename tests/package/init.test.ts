@@ -17,20 +17,20 @@ function run(args: string[], cwd = ENGINE) {
   return execFileSync(process.execPath, args, { cwd, encoding: 'utf8', env: shellEnv, stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
-describe('ok-vibe-slides init', () => {
+describe('ok-show init', () => {
   let output = '';
 
   beforeAll(() => {
     rmSync(join(PROJECT, '..'), { recursive: true, force: true });
-    output = run(['bin/ok-vibe-slides.mjs', 'init', relative(ENGINE, PROJECT), '--title', 'Kickoff Talk']);
+    output = run(['bin/ok-show.mjs', 'init', relative(ENGINE, PROJECT), '--title', 'Kickoff Talk']);
     // Stand in for `npm install`: link the package to this checkout.
     mkdirSync(join(PROJECT, 'node_modules'), { recursive: true });
-    symlinkSync(relative(join(PROJECT, 'node_modules'), ENGINE), join(PROJECT, 'node_modules/ok-vibe-slides'), 'dir');
-    run([join(ENGINE, 'bin/ok-vibe-slides.mjs'), 'build'], PROJECT);
+    symlinkSync(relative(join(PROJECT, 'node_modules'), ENGINE), join(PROJECT, 'node_modules/ok-show'), 'dir');
+    run([join(ENGINE, 'bin/ok-show.mjs'), 'build'], PROJECT);
   }, 120_000);
 
   it('prints what it made and what to run next', () => {
-    expect(output).toContain('Created an ok-vibe-slides project in .tmp/init-package-test/kickoff-talk');
+    expect(output).toContain('Created an ok-show project in .tmp/init-package-test/kickoff-talk');
     expect(output).toContain('src/data/presentations/kickoff-talk/');
     expect(output).toMatch(/npm run dev/);
   });
@@ -57,6 +57,6 @@ describe('ok-vibe-slides init', () => {
 
   // node/init.test.ts covers what a refusal keeps; this checks the CLI reports it and exits non-zero.
   it('exits with an error when run over its own files', () => {
-    expect(() => run(['bin/ok-vibe-slides.mjs', 'init', relative(ENGINE, PROJECT)])).toThrow(/ok-vibe-slides: init: these files already exist/);
+    expect(() => run(['bin/ok-show.mjs', 'init', relative(ENGINE, PROJECT)])).toThrow(/ok-show: init: these files already exist/);
   });
 });

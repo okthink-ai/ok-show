@@ -9,10 +9,10 @@ test('every slide delivers its current speaker notes to the remote presenter', a
   await expect(presentation.locator('.footer__sync')).toHaveClass(/--connected/);
   await presenter.goto(`/notes?session=${session}&token=test-token`);
   const bullets = presenter.getByRole('article', { name: 'Speaker notes' }).locator('li');
-  const slideCount = await presentation.evaluate(() => window.__OK_VIBE_DEBUG__!.getSnapshot().slideCount);
+  const slideCount = await presentation.evaluate(() => window.__OK_SHOW_DEBUG__!.getSnapshot().slideCount);
   const seen = [];
   for (let number = 1; number <= slideCount; number++) {
-    const id = await presentation.evaluate((n) => window.__OK_VIBE_DEBUG__!.goToSlide(n).slideId!, number);
+    const id = await presentation.evaluate((n) => window.__OK_SHOW_DEBUG__!.goToSlide(n).slideId!, number);
     seen.push(id);
     const expected = demoNotes[id as keyof typeof demoNotes];
     expect(expected?.length, `${id} must have speaker notes`).toBeGreaterThan(0);

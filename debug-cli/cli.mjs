@@ -41,9 +41,9 @@ function output(value, flags) {
 }
 
 function help() {
-  return `debug-cli for ok-vibe-slides
+  return `debug-cli for ok-show
 
-Usage: ok-vibe-slides debug <command> [options]
+Usage: ok-show debug <command> [options]
 
 ${COMMAND_HELP}
 
@@ -55,7 +55,7 @@ Environment:
   SYNC_HTTP_URL  default: the running notes service (.tmp/dev-server.json), else http://127.0.0.1:5200
   SYNC_CONTROL_TOKEN  bearer token for session diagnostics and presenter benchmarks;
                       when unset, read from ${CONTROL_TOKEN_FILE}
-                      (written by ok-vibe-slides dev)
+                      (written by ok-show dev)
 `;
 }
 

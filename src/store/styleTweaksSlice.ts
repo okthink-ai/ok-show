@@ -4,7 +4,7 @@ import type { StyleProperty, StyleTweak, StyleValues, TweakScope, TweakSelection
 import { changedProperties, sameTarget, withValue } from '../utils/styleTweaks';
 import { generateId } from './annotationsSlice';
 
-export const STYLE_TWEAKS_KEY = 'ok-vibe-slides-style-tweaks';
+export const STYLE_TWEAKS_KEY = 'ok-show-style-tweaks';
 
 interface StyleTweaksState {
   /** Picking mode: clicks on slide text select it instead of advancing. */

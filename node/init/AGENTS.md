@@ -1,9 +1,9 @@
 # AGENTS.md
 
-This project is a set of slide decks rendered by the `ok-vibe-slides`
+This project is a set of slide decks rendered by the `ok-show`
 package. The package supplies the app shell, presenter view, authoring tools,
 and dev server; this project supplies decks, templates, styles, and public
-files. Do not edit `node_modules/ok-vibe-slides`. Its `README.md` and
+files. Do not edit `node_modules/ok-show`. Its `README.md` and
 `AGENTS.md` are the reference for template props, brand tokens, review
 packets, and the debug CLI.
 
@@ -27,13 +27,13 @@ packets, and the debug CLI.
 
 ## Imports
 
-- Types: `import type { SlideData, BaseSlideProps } from 'ok-vibe-slides'`.
+- Types: `import type { SlideData, BaseSlideProps } from 'ok-show'`.
 - Templates: from `src/components/slides/` with relative imports. If you need an
   engine template you have not copied, import it one by one:
-  `ok-vibe-slides/slides/<Name>`. Never import values from the
-  `ok-vibe-slides` root; it loads every built-in stylesheet, which competes
+  `ok-show/slides/<Name>`. Never import values from the
+  `ok-show` root; it loads every built-in stylesheet, which competes
   with the copies here.
-- Components: `ok-vibe-slides/components/<Name>` (for example `VideoOverlay`).
+- Components: `ok-show/components/<Name>` (for example `VideoOverlay`).
 
 ## Slide rules
 

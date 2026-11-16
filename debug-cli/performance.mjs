@@ -18,7 +18,7 @@ export function performanceOptions(flags) {
 export async function performanceCommand({ first, flags, ctx }) {
   if (!['start', 'stop', 'status'].includes(first)) throw new Error('Use perf <start|stop|status> [--notes]');
   const report = await ctx.withPage(Boolean(flags.notes), (page) => page.evaluate((action) => {
-    const recorder = window.__OK_VIBE_DEBUG__?.performance;
+    const recorder = window.__OK_SHOW_DEBUG__?.performance;
     if (!recorder) throw new Error('Reload this tab to enable the performance recorder.');
     return recorder[action === 'status' ? 'report' : action]();
   }, first));
@@ -73,7 +73,7 @@ export async function presenterPerformanceCommand({ flags, ctx }) {
       await page.waitForTimeout(700);
       const before = await client.send('Performance.getMetrics');
       const startState = await ctx.appState(page);
-      await page.evaluate(() => window.__OK_VIBE_DEBUG__.performance.start());
+      await page.evaluate(() => window.__OK_SHOW_DEBUG__.performance.start());
       recording = true;
       if (options.scenario === 'open-practice') await page.getByRole('tab', { name: 'Practice', exact: true }).click();
       const workload = await page.evaluate(async ({ duration, scenario }) => {
@@ -102,7 +102,7 @@ export async function presenterPerformanceCommand({ flags, ctx }) {
         });
         return { steps, scrollDistance: viewport ? viewport.scrollTop - initialScroll : 0 };
       }, options);
-      const result = await page.evaluate(() => window.__OK_VIBE_DEBUG__.performance.stop());
+      const result = await page.evaluate(() => window.__OK_SHOW_DEBUG__.performance.stop());
       recording = false;
       const after = await client.send('Performance.getMetrics');
       const browserMetrics = {};

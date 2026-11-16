@@ -8,15 +8,15 @@ import { practiceMarkdownPlugin } from '../scripts/practice-markdown';
 import { listManuscripts, listTemplateStylesheets } from './project.mjs';
 import type { ResolvedProject } from './project.mjs';
 
-export const VIRTUAL_PRESENTATIONS = 'virtual:ok-vibe-slides/presentations';
-export const VIRTUAL_MANUSCRIPTS = 'virtual:ok-vibe-slides/manuscripts';
-export const VIRTUAL_PROJECT = 'virtual:ok-vibe-slides/project';
-export const VIRTUAL_STYLES = 'virtual:ok-vibe-slides/styles';
+export const VIRTUAL_PRESENTATIONS = 'virtual:ok-show/presentations';
+export const VIRTUAL_MANUSCRIPTS = 'virtual:ok-show/manuscripts';
+export const VIRTUAL_PROJECT = 'virtual:ok-show/project';
+export const VIRTUAL_STYLES = 'virtual:ok-show/styles';
 const VIRTUAL_IDS = [VIRTUAL_PRESENTATIONS, VIRTUAL_MANUSCRIPTS, VIRTUAL_PROJECT, VIRTUAL_STYLES];
 
 /**
  * Packages the engine and the decks must share one copy of. A project that
- * installs ok-vibe-slides through a symlink would otherwise load a second
+ * installs ok-show through a symlink would otherwise load a second
  * React from its own node_modules and break hooks.
  */
 export const SHARED_DEPENDENCIES = [
@@ -129,7 +129,7 @@ const isInside = (directory: string, file: string): boolean => {
 };
 
 /** Wires a project's decks, manuscripts, and paths into the engine through virtual modules. */
-export function okVibeSlidesPlugin(project: ResolvedProject): Plugin[] {
+export function okShowPlugin(project: ResolvedProject): Plugin[] {
   const inherited = inheritedPublicFiles(project);
   const enginePublic = join(project.engineRoot, 'public');
 
@@ -141,7 +141,7 @@ export function okVibeSlidesPlugin(project: ResolvedProject): Plugin[] {
   };
 
   const plugin: Plugin = {
-    name: 'ok-vibe-slides',
+    name: 'ok-show',
     resolveId(id) {
       if (VIRTUAL_IDS.includes(id)) return `\0${id}`;
     },
@@ -163,7 +163,7 @@ export function okVibeSlidesPlugin(project: ResolvedProject): Plugin[] {
       };
       server.watcher.on('add', onChange);
       server.watcher.on('unlink', onChange);
-      // Editing ok-vibe-slides.config.* restarts the server, the way editing vite.config does.
+      // Editing ok-show.config.* restarts the server, the way editing vite.config does.
       if (project.configFile) {
         const configFile = project.configFile;
         server.watcher.add(configFile);
@@ -204,10 +204,10 @@ export function createViteConfig(project: ResolvedProject, _env: ConfigEnv, { sy
   const base: UserConfig = {
     root: project.engineRoot,
     // Keep the project's optimized-dependency cache out of a shared engine checkout.
-    cacheDir: project.isEngine ? undefined : resolve(project.root, 'node_modules/.vite-ok-vibe-slides'),
+    cacheDir: project.isEngine ? undefined : resolve(project.root, 'node_modules/.vite-ok-show'),
     envDir: project.root,
     publicDir: project.publicDir,
-    plugins: [react(), okVibeSlidesPlugin(project)],
+    plugins: [react(), okShowPlugin(project)],
     define: {
       'import.meta.env.VITE_GIT_REVISION': JSON.stringify(gitRevision(project.root)),
     },

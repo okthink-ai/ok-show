@@ -1,4 +1,4 @@
-import { engineDir, presentationsDir, templateStylesheets } from 'virtual:ok-vibe-slides/project';
+import { engineDir, presentationsDir, templateStylesheets } from 'virtual:ok-show/project';
 import { MANUSCRIPT_FILENAME } from '../practice/manuscripts';
 
 /**

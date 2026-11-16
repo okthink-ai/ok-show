@@ -1,5 +1,5 @@
-import { BulletSlide, TitleSlide } from 'ok-vibe-slides';
-import type { SlideData } from 'ok-vibe-slides';
+import { BulletSlide, TitleSlide } from 'ok-show';
+import type { SlideData } from 'ok-show';
 import QuoteSlide from '../../templates/QuoteSlide';
 
 export const slides: SlideData[] = [
@@ -23,7 +23,7 @@ export const slides: SlideData[] = [
       <BulletSlide
         label="Plan"
         title="Three steps"
-        items={['Install the package', 'Write decks', 'Run ok-vibe-slides dev']}
+        items={['Install the package', 'Write decks', 'Run ok-show dev']}
       />
     ),
   },

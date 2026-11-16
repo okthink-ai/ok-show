@@ -7,7 +7,7 @@ import { assertThemeId } from './themes.mjs';
 
 export const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9222';
 
-// A running `ok-vibe-slides dev` records the URL it serves in .tmp/dev-server.json.
+// A running `ok-show dev` records the URL it serves in .tmp/dev-server.json.
 export const APP_URL = process.env.APP_URL || readDevServerFile().appUrl || 'http://localhost:5199';
 
 export const isAppTab = (url, notes) => url.startsWith(APP_URL) && (notes ? url.includes('/notes') : !url.includes('/notes'));
@@ -15,7 +15,7 @@ export const isAppTab = (url, notes) => url.startsWith(APP_URL) && (notes ? url.
 /**
  * `href` with a sync session and, when there is one, the control token. Other
  * parameters (slide, presentation) are kept. A tab keeps the token it was
- * opened with in session storage, so after `ok-vibe-slides dev` restarts with
+ * opened with in session storage, so after `ok-show dev` restarts with
  * a new token, an existing tab must be reloaded with this URL.
  */
 export function withControlToken(href, token) {
@@ -38,7 +38,7 @@ async function refreshControlToken(page, token = resolveControlToken()) {
   if (stored !== token) await page.goto(withControlToken(page.url(), token), { waitUntil: 'domcontentloaded' });
 }
 
-const waitForDebugAdapter = (page, timeout) => page.waitForFunction(() => Boolean(window.__OK_VIBE_DEBUG__), null, { timeout });
+const waitForDebugAdapter = (page, timeout) => page.waitForFunction(() => Boolean(window.__OK_SHOW_DEBUG__), null, { timeout });
 
 /**
  * Attach to the deck (or `/notes`) tab in the debug Chrome. When there is no
@@ -47,7 +47,7 @@ const waitForDebugAdapter = (page, timeout) => page.waitForFunction(() => Boolea
 export async function connectPage(notes = false) {
   let browser;
   try { browser = await chromium.connectOverCDP(CDP_URL); }
-  catch { throw new Error(`Cannot connect to Chrome at ${CDP_URL}. Run \`ok-vibe-slides debug browser\` to start it.`); }
+  catch { throw new Error(`Cannot connect to Chrome at ${CDP_URL}. Run \`ok-show debug browser\` to start it.`); }
   const pages = browser.contexts().flatMap((context) => context.pages());
   let page = pages.find((candidate) => isAppTab(candidate.url(), notes));
   if (page) {
@@ -59,7 +59,7 @@ export async function connectPage(notes = false) {
     catch {
       await page.close().catch(() => {});
       await browser.close();
-      throw new Error(`Cannot open ${APP_URL}. Is \`ok-vibe-slides dev\` running?`);
+      throw new Error(`Cannot open ${APP_URL}. Is \`ok-show dev\` running?`);
     }
   }
   try {
@@ -75,7 +75,7 @@ export async function connectPage(notes = false) {
 export async function listTargets({ fetchImpl = fetch, cdpUrl = CDP_URL } = {}) {
   let response;
   try { response = await fetchImpl(`${cdpUrl}/json/list`); }
-  catch { throw new Error(`Cannot connect to Chrome at ${cdpUrl}. Run \`ok-vibe-slides debug browser\` to start it.`); }
+  catch { throw new Error(`Cannot connect to Chrome at ${cdpUrl}. Run \`ok-show debug browser\` to start it.`); }
   const targets = await response.json();
   return targets.filter((target) => target.type === 'page').map(({ id, title, url }) => ({
     id,
@@ -130,8 +130,8 @@ export async function launchBrowser({
 
 export async function appState(page) {
   return page.evaluate(() => {
-    const debug = window.__OK_VIBE_DEBUG__;
-    if (!debug) throw new Error('Missing __OK_VIBE_DEBUG__');
+    const debug = window.__OK_SHOW_DEBUG__;
+    if (!debug) throw new Error('Missing __OK_SHOW_DEBUG__');
     const snapshot = debug.getSnapshot();
     return {
       route: window.location.pathname,
@@ -145,8 +145,8 @@ export async function appState(page) {
 export async function setTheme(page, theme) {
   assertThemeId(theme);
   return page.evaluate((requested) => {
-    const debug = window.__OK_VIBE_DEBUG__;
-    if (!debug) throw new Error('Missing __OK_VIBE_DEBUG__');
+    const debug = window.__OK_SHOW_DEBUG__;
+    if (!debug) throw new Error('Missing __OK_SHOW_DEBUG__');
     debug.setTheme(requested);
     return requested;
   }, theme);
@@ -154,8 +154,8 @@ export async function setTheme(page, theme) {
 
 export async function setMobilePreview(page, enabled) {
   return page.evaluate((requested) => {
-    const debug = window.__OK_VIBE_DEBUG__;
-    if (!debug) throw new Error('Missing __OK_VIBE_DEBUG__');
+    const debug = window.__OK_SHOW_DEBUG__;
+    if (!debug) throw new Error('Missing __OK_SHOW_DEBUG__');
     if (typeof debug.setMobilePreview !== 'function') throw new Error('The app predates setMobilePreview. Restart the dev server.');
     return debug.setMobilePreview(requested).mobilePreview;
   }, enabled);
@@ -175,7 +175,7 @@ export async function setViewport(page, size) {
 export async function themeSnapshot(page) {
   return page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
-    const state = window.__OK_VIBE_DEBUG__?.getSnapshot();
+    const state = window.__OK_SHOW_DEBUG__?.getSnapshot();
     return {
       theme: state?.theme ?? null,
       dataTheme: document.documentElement.dataset.theme ?? null,
@@ -192,8 +192,8 @@ export async function themeSnapshot(page) {
 
 export async function navigate(page, slideNumber, presentationId) {
   return page.evaluate(({ slideNumber: target, presentationId: requested }) => {
-    const debug = window.__OK_VIBE_DEBUG__;
-    if (!debug) throw new Error('Missing __OK_VIBE_DEBUG__');
+    const debug = window.__OK_SHOW_DEBUG__;
+    if (!debug) throw new Error('Missing __OK_SHOW_DEBUG__');
     const snapshot = debug.goToSlide(target, requested);
     return { presentationId: snapshot.presentationId, slide: snapshot.currentSlide };
   }, { slideNumber, presentationId });
@@ -206,7 +206,7 @@ export async function auditActiveSlide(page) {
   return page.evaluate(() => {
     const TOLERANCE = 8;
     const EDGE_MARGIN = 12;
-    const aspectRatio = window.__OK_VIBE_DEBUG__?.getSnapshot().aspectRatio;
+    const aspectRatio = window.__OK_SHOW_DEBUG__?.getSnapshot().aspectRatio;
     const orientation = aspectRatio === '9:16' ? 'portrait' : 'landscape';
     const slide = document.querySelector(`.slide--active.slide--${orientation}`);
     const content = slide?.querySelector('.slide__content');

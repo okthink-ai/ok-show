@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 import fixtureNotes from '../fixtures/consumer/decks/launch/notes.mjs';
 
-// Runs against `ok-vibe-slides dev --root tests/fixtures/consumer`: a project
+// Runs against `ok-show dev --root tests/fixtures/consumer`: a project
 // that installs the engine as a package and keeps its decks, templates, and
-// public files in non-default folders named by ok-vibe-slides.config.ts.
+// public files in non-default folders named by ok-show.config.ts.
 
 test('the CLI serves the project decks with the project title', async ({ page }) => {
   await page.goto('/?token=test-token');
   await expect(page).toHaveTitle('Fixture Talks');
   await expect(page.locator('.slide--active')).toContainText('Built on the package');
-  const snapshot = await page.evaluate(() => window.__OK_VIBE_DEBUG__!.getSnapshot());
+  const snapshot = await page.evaluate(() => window.__OK_SHOW_DEBUG__!.getSnapshot());
   expect(snapshot).toMatchObject({ presentationId: 'launch', slideCount: 3 });
   await expect(page.locator('meta[name="fixture-head"]')).toHaveAttribute('content', 'from-config');
   await expect(page.locator('meta[name="description"]')).toHaveCount(1);
@@ -48,11 +48,11 @@ test('the inspector names project and engine stylesheets as the project sees the
     return { componentName, cssFile };
   }, selector);
   expect(await info('.quote-slide__quote')).toEqual({ componentName: 'QuoteSlide', cssFile: 'templates/QuoteSlide.css' });
-  await page.evaluate(() => window.__OK_VIBE_DEBUG__!.goToSlide(3));
+  await page.evaluate(() => window.__OK_SHOW_DEBUG__!.goToSlide(3));
   await expect(page.locator('.slide--active .bullet-slide')).toBeVisible();
   expect(await info('.bullet-slide li')).toEqual({
     componentName: 'BulletSlide',
-    cssFile: 'node_modules/ok-vibe-slides/src/components/slides/BulletSlide.css',
+    cssFile: 'node_modules/ok-show/src/components/slides/BulletSlide.css',
   });
 });
 
@@ -65,7 +65,7 @@ test('speaker notes come from the project deck through the presenter remote', as
   await presenter.goto(`/notes?session=${session}&token=test-token`);
   const bullets = presenter.getByRole('article', { name: 'Speaker notes' }).locator('li');
   for (const [number, id] of [[1, 'launch-title'], [2, 'launch-quote'], [3, 'launch-plan']] as const) {
-    await presentation.evaluate((n) => window.__OK_VIBE_DEBUG__!.goToSlide(n), number);
+    await presentation.evaluate((n) => window.__OK_SHOW_DEBUG__!.goToSlide(n), number);
     await expect(bullets).toHaveText(fixtureNotes[id]);
   }
   await presentation.close();

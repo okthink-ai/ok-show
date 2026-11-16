@@ -2,9 +2,9 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('virtual:ok-vibe-slides/project', () => ({
+vi.mock('virtual:ok-show/project', () => ({
   presentationsDir: 'decks',
-  engineDir: 'node_modules/ok-vibe-slides/',
+  engineDir: 'node_modules/ok-show/',
   templateStylesheets: { QuoteSlide: 'templates/QuoteSlide.css', BulletSlide: 'templates/BulletSlide.css', WideBulletSlide: 'templates/WideBulletSlide.css' },
 }));
 
@@ -21,8 +21,8 @@ describe('slide registry in a project that installs the engine', () => {
     const { componentFileMap, getComponentName } = await import('./slideRegistry');
     expect(getComponentName('quote-slide__quote')).toBe('QuoteSlide');
     expect(componentFileMap.QuoteSlide).toBe('templates/QuoteSlide.css');
-    expect(componentFileMap.TeamSlide).toBe('node_modules/ok-vibe-slides/src/components/slides/TeamSlide.css');
-    expect(componentFileMap['Slide container']).toBe('node_modules/ok-vibe-slides/src/components/Slide.css');
+    expect(componentFileMap.TeamSlide).toBe('node_modules/ok-show/src/components/slides/TeamSlide.css');
+    expect(componentFileMap['Slide container']).toBe('node_modules/ok-show/src/components/Slide.css');
   });
 
   it('lets a project template override an engine template of the same name', async () => {

@@ -9,7 +9,7 @@ const engine = resolve(fixture, '../../..');
 
 export function linkFixture() {
   const modules = join(fixture, 'node_modules');
-  const link = join(modules, 'ok-vibe-slides');
+  const link = join(modules, 'ok-show');
   mkdirSync(modules, { recursive: true });
   if (!existsSync(link) && !isSymlink(link)) symlinkSync(relative(modules, engine), link, 'dir');
   return fixture;

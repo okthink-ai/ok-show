@@ -17,10 +17,10 @@ function run(command: string, args: string[]) {
   return execFileSync(command, args, { cwd: ENGINE, encoding: 'utf8', env: shellEnv, stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
-describe('a project that installs ok-vibe-slides', () => {
+describe('a project that installs ok-show', () => {
   beforeAll(() => {
     rmSync(OUT, { recursive: true, force: true });
-    run(process.execPath, ['bin/ok-vibe-slides.mjs', 'build', '--root', FIXTURE]);
+    run(process.execPath, ['bin/ok-show.mjs', 'build', '--root', FIXTURE]);
   }, 120_000);
 
   it('builds the public site into the configured outDir', () => {
@@ -45,7 +45,7 @@ describe('a project that installs ok-vibe-slides', () => {
     const bundle = readdirSync(join(OUT, 'assets')).map((file) => readFileSync(join(OUT, 'assets', file), 'utf8')).join('\n');
     expect(bundle).not.toContain('FIXTURE-PRIVATE-NOTE');
     expect(bundle).not.toContain('Fixture manuscript opening line.');
-    expect(bundle).not.toContain('__OK_VIBE_DEBUG__');
+    expect(bundle).not.toContain('__OK_SHOW_DEBUG__');
   });
 
   it('ships the project public files and fills the gaps from the engine', () => {

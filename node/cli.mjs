@@ -21,9 +21,9 @@ const ENGINE_VITE_CONFIG = join(ENGINE_ROOT, 'vite.config.ts');
 const DEFAULT_SYNC_PORT = 5200;
 const LINK_SESSION = 'default';
 
-export const HELP = `ok-vibe-slides — presentation engine and authoring tools
+export const HELP = `ok-show — presentation engine and authoring tools
 
-Usage: ok-vibe-slides <command> [options]
+Usage: ok-show <command> [options]
 
 Commands:
   init [dir]         Create a project: a starter deck, speaker notes, templates,
@@ -41,7 +41,7 @@ Commands:
 
 Options:
   --root <dir>       Project root (default: current directory)
-  --config <file>    Config file (default: ok-vibe-slides.config.{ts,mts,js,mjs})
+  --config <file>    Config file (default: ok-show.config.{ts,mts,js,mjs})
   --mode <mode>      Vite mode
   --host [host]      dev/preview: listen on all addresses, or on <host>
   --port <port>      dev/preview: port, which must be free (default: 5199 or
@@ -81,7 +81,7 @@ export function parseCliArgs(argv) {
   const [first, ...rest] = argv;
   const command = first === undefined || first === '--help' || first === '-h' ? 'help' : first;
   if (command === '--version' || command === '-v') return { command: 'version', options: {}, forwarded: [] };
-  if (!Object.hasOwn(COMMAND_OPTIONS, command)) throw new Error(`Unknown command "${command}". Run ok-vibe-slides help.`);
+  if (!Object.hasOwn(COMMAND_OPTIONS, command)) throw new Error(`Unknown command "${command}". Run ok-show help.`);
   const accepted = COMMAND_OPTIONS[command];
   const options = {};
   const forwarded = [];
@@ -107,7 +107,7 @@ export function parseCliArgs(argv) {
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else {
-      throw new Error(`Unknown option "${arg}" for ${command}. Run ok-vibe-slides help.`);
+      throw new Error(`Unknown option "${arg}" for ${command}. Run ok-show help.`);
     }
   }
   if (options.port !== undefined) {
@@ -147,9 +147,9 @@ export function controlLinks({ localUrl, networkUrls = [], token, session = LINK
 
 function setViteEnvironment(project, extra = {}) {
   // vite.config.ts reads the project from here; see its header comment.
-  process.env.OK_VIBE_SLIDES_ROOT = project.root;
-  if (project.configFile) process.env.OK_VIBE_SLIDES_CONFIG = project.configFile;
-  else delete process.env.OK_VIBE_SLIDES_CONFIG;
+  process.env.OK_SHOW_ROOT = project.root;
+  if (project.configFile) process.env.OK_SHOW_CONFIG = project.configFile;
+  else delete process.env.OK_SHOW_CONFIG;
   Object.assign(process.env, extra);
 }
 
@@ -174,9 +174,9 @@ async function startSyncServer(project, { port, log = console.log } = {}) {
       const { notes, sparkle } = await loadPresentationNotes(presentationId, { directory: project.presentationsDir, version: Date.now() });
       if (!notes) return;
       syncServer.reloadNotes(presentationId, notes, sparkle);
-      log(`[ok-vibe-slides] reloaded speaker notes for ${presentationId}`);
+      log(`[ok-show] reloaded speaker notes for ${presentationId}`);
     } catch (error) {
-      console.warn(`[ok-vibe-slides] could not reload speaker notes for ${presentationId}: ${error.message}`);
+      console.warn(`[ok-show] could not reload speaker notes for ${presentationId}: ${error.message}`);
     }
   };
   const watcher = watch(project.presentationsDir, { recursive: true }, (_event, file) => {
@@ -296,8 +296,8 @@ async function sync(project) {
   writeControlTokenFile(service.controlToken, tokenFile);
   process.once('exit', () => removeControlTokenFile(service.controlToken, tokenFile));
   onShutdown(service.close);
-  console.log(`[ok-vibe-slides] speaker notes service on ws://0.0.0.0:${service.syncPort}`);
-  console.log(`[ok-vibe-slides] control token in ${tokenFile}`);
+  console.log(`[ok-show] speaker notes service on ws://0.0.0.0:${service.syncPort}`);
+  console.log(`[ok-show] control token in ${tokenFile}`);
 }
 
 function runTool(project, args, env = {}) {
@@ -367,7 +367,7 @@ export async function main(argv = process.argv.slice(2)) {
       return runTool(
         project,
         [join(ENGINE_ROOT, 'scripts/with-env.mjs'), '--', process.execPath, join(ENGINE_ROOT, 'scripts/sparkle-image.mjs'), ...forwarded],
-        { OK_VIBE_SLIDES_PRESENTATIONS_DIR: project.paths.presentationsDir },
+        { OK_SHOW_PRESENTATIONS_DIR: project.paths.presentationsDir },
       );
     default: throw new Error(`Unhandled command ${command}`);
   }
