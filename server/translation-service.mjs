@@ -73,7 +73,7 @@ export function translationConfigFromEnv(env = process.env) {
     elevenlabsApiKey: env.ELEVENLABS_API_KEY || '',
     elevenlabsEnterpriseApiKey: env.ELEVENLABS_ENTERPRISE_API_KEY || '',
     elevenlabsVoiceId: env.ELEVENLABS_TRANSLATION_VOICE_ID || '',
-    defaultProvider: env.OK_SHOW_TRANSLATION_PROVIDER || '',
+    defaultProvider: env.TRANSLATION_PROVIDER || '',
   };
 }
 

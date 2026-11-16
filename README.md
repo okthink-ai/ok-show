@@ -423,7 +423,7 @@ project's `.env` (copy `.env.example`), then restart `ok-show dev`:
 # Either one is enough. Configure both only when operators need a choice.
 OPENAI_API_KEY=
 ELEVENLABS_API_KEY=
-OK_SHOW_TRANSLATION_PROVIDER=openai # optional: openai or elevenlabs
+TRANSLATION_PROVIDER=openai # optional: openai or elevenlabs
 
 # ElevenLabs enterprise realtime only:
 ELEVENLABS_ENTERPRISE_API_KEY=

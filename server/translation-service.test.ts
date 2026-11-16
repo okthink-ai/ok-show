@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import WebSocket from 'ws';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createSyncServer } from './sync-server.mjs';
+import { translationConfigFromEnv } from './translation-service.mjs';
 
 type Server = ReturnType<typeof createSyncServer>;
 const servers: Server[] = [];
@@ -96,6 +97,12 @@ async function authenticate(socket: WebSocket, values: Partial<Record<string, un
 }
 
 describe('translation service', () => {
+  it('reads the default provider from TRANSLATION_PROVIDER', () => {
+    expect(translationConfigFromEnv({
+      TRANSLATION_PROVIDER: 'openai',
+    })).toMatchObject({ defaultProvider: 'openai' });
+  });
+
   it('authenticates and validates scope before a paid adapter can open', async () => {
     let connections = 0;
     const { url } = await serverFor(fakeAdapter(() => { connections += 1; }));
