@@ -1,0 +1,23 @@
+export default {
+  'demo-title': ['Welcome the audience and introduce ok-show as a code-first presentation engine.', 'Preview the dual-layout workflow and the annotation loop.'],
+  'demo-toc': [
+    'Frame the demo around templates, layout, data, media, and team profiles.',
+    'Templates first: every slide is a typed React component with landscape and portrait layouts.',
+    'Content layouts show how text, panels, and images share one flexbox system.',
+    'Data visualization covers tables with highlighted columns and headline figures.',
+    'Media support covers images with alt text and video with an optional description.',
+    'Team profiles close the tour with structured metadata and orientation-specific portraits.',
+    'Mention that the presenter view, practice mode, and annotations work the same for every deck.',
+  ],
+  'demo-bullet': ['Call out dual aspect ratios, navigation, annotations, inspector mode, and PDF export.'],
+  'demo-statement': ['Pause on the central idea: presentation content can remain typed, reusable, and version controlled.'],
+  'demo-three-panel': ['Explain the three foundations: tokens, reusable components, and a fast authoring workflow.'],
+  'demo-four-panel': ['Walk through navigation, annotations, inspection, and export as an end-to-end workflow.'],
+  'demo-four-image': ['Use this grid to demonstrate image-heavy layouts and accessible alt text.'],
+  'demo-text-media': ['Point out that media is optional and the content column expands when it is absent.'],
+  'demo-team': ['Show how profile metadata and orientation-specific imagery fit the same typed slide definition.'],
+  'demo-table': ['Explain highlighted columns and the responsive alternate treatment used on portrait slides.'],
+  'demo-figures': ['Use the metrics to summarize the breadth and lightweight footprint of the engine.'],
+  'demo-sections': ['Close the architecture tour by locating components, hooks, state, and design tokens.'],
+  'demo-video': ['Mention the two-column landscape treatment when a video description is present.'],
+};

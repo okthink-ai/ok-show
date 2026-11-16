@@ -1,0 +1,124 @@
+/* Base slide styles */
+.text-with-media-slide {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.text-with-media-slide--landscape {
+  display: flex;
+  gap: 80px;
+}
+
+.text-with-media-slide__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.text-with-media-slide__content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.text-with-media-slide__paragraph {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.text-with-media-slide__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-with-media-slide__image {
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: var(--slide-radius-landscape);
+}
+
+.text-with-media-slide__placeholder {
+  width: 100%;
+  height: 90%;
+  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
+  border-radius: var(--slide-radius-landscape);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Portrait Layout */
+.text-with-media-slide--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.text-with-media-slide__portrait-visual {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-with-media-slide__portrait-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.text-with-media-slide__portrait-image {
+  width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: var(--slide-radius-portrait);
+}
+
+.text-with-media-slide__portrait-placeholder {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
+  border-radius: var(--slide-radius-portrait);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shared shimmer animation */
+.text-with-media-slide__placeholder::after,
+.text-with-media-slide__portrait-placeholder::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    color-mix(in srgb, var(--color-text-primary) 3%, transparent) 50%,
+    transparent 70%
+  );
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%);
+  }
+}

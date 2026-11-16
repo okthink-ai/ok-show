@@ -1,0 +1,24 @@
+.quote-slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.quote-slide__quote {
+  font-size: var(--slide-title-medium);
+  color: var(--color-text-primary);
+}
+
+.quote-slide__attribution {
+  font-size: var(--slide-caption);
+  color: var(--color-text-secondary);
+}
+
+.quote-slide__logo {
+  width: 120px;
+  height: 120px;
+}

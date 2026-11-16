@@ -1,0 +1,160 @@
+.toc-slide {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.toc-slide--landscape {
+  display: flex;
+  gap: 120px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Portrait Layout */
+.toc-slide--portrait {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout Styles */
+.toc-slide__left {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.toc-slide__header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.toc-slide__subtitle {
+  font-size: var(--slide-caption);
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  text-transform: capitalize;
+}
+
+.toc-slide__title {
+  font-size: var(--slide-title-medium);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.toc-slide__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.toc-slide__list {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  padding: 80px;
+  border-radius: 30px;
+  width: 100%;
+}
+
+.toc-slide__item {
+  display: flex;
+  align-items: baseline;
+  gap: 40px;
+}
+
+.toc-slide__number {
+  font-size: var(--slide-body-large);
+  font-weight: 300;
+  color: var(--color-text-tertiary);
+  opacity: 0.6;
+  min-width: 90px;
+}
+
+.toc-slide__item-title {
+  font-size: var(--slide-body-large);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.toc-slide__description {
+  font-size: var(--slide-footer);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* Portrait Layout Styles */
+.toc-slide__portrait-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 80px;
+}
+
+.toc-slide__portrait-subtitle {
+  font-size: var(--slide-caption);
+  font-weight: 300;
+  color: var(--color-text-tertiary);
+  text-transform: capitalize;
+}
+
+.toc-slide__portrait-title {
+  font-size: var(--slide-title-medium);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--color-text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.toc-slide__portrait-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  flex: 1;
+  padding: 60px 40px;
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  border-radius: 30px;
+}
+
+.toc-slide__portrait-item {
+  display: flex;
+  align-items: baseline;
+  gap: 30px;
+}
+
+.toc-slide__portrait-number {
+  font-size: var(--slide-body);
+  font-weight: 300;
+  color: var(--color-text-tertiary);
+  opacity: 0.6;
+  min-width: 80px;
+}
+
+.toc-slide__portrait-item-title {
+  font-size: var(--slide-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.toc-slide__portrait-description {
+  font-size: var(--slide-footer);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}

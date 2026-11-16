@@ -1,0 +1,134 @@
+.statement-slide {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.statement-slide--landscape {
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statement-slide__content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  flex: 1;
+  justify-content: center;
+}
+
+.statement-slide__title {
+  font-family: var(--font-ovo);
+  font-size: var(--slide-title-large);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-accent);
+  padding-bottom: 8px;
+}
+
+.statement-slide__title--compact {
+  font-size: var(--slide-title-medium);
+  line-height: 1.14;
+}
+
+.statement-slide__subtitle {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.statement-slide__subtitle em {
+  font-style: italic;
+}
+
+/* Call to action: the container places it; `statement-slide__cta` styles a link or button inside. */
+.statement-slide__cta-container {
+  display: flex;
+  align-self: flex-start;
+}
+
+.statement-slide__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 40px;
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: var(--slide-caption);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.statement-slide__cta:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
+.statement-slide__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  flex-shrink: 0;
+  font-size: var(--slide-caption);
+  color: var(--color-text-secondary);
+}
+
+/* Portrait Layout */
+.statement-slide--portrait {
+  flex-direction: column;
+}
+
+.statement-slide__portrait-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  flex: 1;
+  justify-content: center;
+}
+
+.statement-slide__portrait-title {
+  font-family: var(--font-ovo);
+  font-size: var(--slide-title-medium);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-text-primary);
+  padding-bottom: 8px;
+}
+
+.statement-slide__portrait-subtitle {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.statement-slide__portrait-subtitle em {
+  font-style: italic;
+}
+
+.statement-slide__portrait-title.statement-slide__title--compact {
+  font-size: var(--slide-title-small);
+}
+
+.statement-slide--portrait .statement-slide__cta {
+  padding: 14px 28px;
+}
+
+.statement-slide__footer--portrait {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}

@@ -1,0 +1,206 @@
+/* Base slide styles */
+.three-panel-slide {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.three-panel-slide--landscape {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  flex: 1;
+  min-height: 0;
+}
+
+.three-panel-slide__subtitle {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.three-panel-slide__panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  flex: 1;
+  min-height: 0;
+}
+
+.three-panel-slide__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  text-align: center;
+}
+
+.three-panel-slide__panel-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.three-panel-slide__panel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.three-panel-slide__panel-icon {
+  font-size: var(--slide-title-small);
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.three-panel-slide__panel-title {
+  font-size: var(--slide-body);
+  font-weight: 300;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-accent);
+  min-height: 2.4em;
+}
+
+.three-panel-slide__panel-subtitle {
+  font-size: var(--slide-body-small);
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.three-panel-slide__panel:last-child .three-panel-slide__panel-subtitle {
+  color: var(--color-text-tertiary);
+}
+
+.three-panel-slide__panel-description {
+  font-size: var(--slide-caption);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 16px 0 0 0;
+  color: var(--color-text-body);
+}
+
+.three-panel-slide__content-container {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Portrait Layout */
+.three-panel-slide--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.three-panel-slide__portrait-subtitle {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.three-panel-slide__portrait-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Reduced gap */
+  flex: 1;
+  min-height: 0;
+}
+
+.three-panel-slide__portrait-panel {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 15px;
+  text-align: left;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.three-panel-slide__portrait-panel-image {
+  width: 100px; /* Fixed width for the image */
+  height: 100px; /* Fixed height for the image */
+  border-radius: 8px; /* Slightly smaller border radius for the image */
+  overflow: hidden;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.three-panel-slide__portrait-panel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.three-panel-slide__portrait-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.three-panel-slide__portrait-panel-icon {
+  font-size: var(--slide-body);
+  line-height: 1;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.three-panel-slide__portrait-panel-title {
+  font-size: var(--slide-body);
+  font-weight: 300;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-accent);
+}
+
+.three-panel-slide__portrait-panel-subtitle {
+  font-size: var(--slide-caption);
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 8px 0 0 0;
+  color: var(--color-text-secondary);
+}
+
+.three-panel-slide__portrait-panel-description {
+  font-size: var(--slide-body-small);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 15px 0 0 0;
+  color: var(--color-text-body);
+}
+
+
+
+.three-panel-slide__portrait-content-container {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align text to the left */
+  gap: 8px; /* Reduce gap between text elements */
+  flex: 1; /* Allow content to take available space */
+}

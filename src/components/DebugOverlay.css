@@ -1,0 +1,92 @@
+.debug-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.debug-overlay__content {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.debug-overlay__header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.debug-overlay__header h3 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.debug-overlay__subtitle {
+  margin: 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.debug-overlay__section {
+  margin-bottom: 24px;
+}
+
+.debug-overlay__section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a9eff;
+}
+
+.debug-overlay__section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.debug-overlay__section table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.debug-overlay__section table td:first-child {
+  color: #999;
+  width: 140px;
+  font-weight: 500;
+}
+
+.debug-overlay__section table td:last-child {
+  color: #4ade80;
+  word-break: break-all;
+}
+
+.debug-overlay__warning td {
+  color: #f59e0b !important;
+  font-weight: 600;
+}
+
+.debug-overlay__footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+}

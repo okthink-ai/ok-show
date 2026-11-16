@@ -1,0 +1,51 @@
+/*
+ * Brand stylesheet, loaded after the engine's styles (see `styles` in
+ * ok-show.config.ts).
+ *
+ * Every template reads its colors, fonts, radii, and shadows from these
+ * design tokens, so changing a token restyles every slide. Uncomment a token
+ * and give it your value.
+ *
+ * Use `:root, :root[data-theme]`: each built-in theme sets its tokens on
+ * `:root[data-theme='<id>']`, so a bare `:root` rule loses to the active theme.
+ * Tokens you set here stay fixed in every theme; the rest still change when
+ * you pick a theme under Palette in the developer tools drawer.
+ */
+:root,
+:root[data-theme] {
+  /* Accents */
+  /* --color-accent: #6b8acd; */        /* links, highlights, active states */
+  /* --color-label: #14b8a6; */         /* slide labels and tags */
+
+  /* Surfaces and text. Set the whole group for a brand that looks the same in every theme. */
+  /* --color-background: #09090b; */    /* behind the slide */
+  /* --color-surface: #141416; */       /* the slide */
+  /* --color-surface-card: #1c1c1e; */  /* cards and panels */
+  /* --color-text-primary: #ffffff; */
+  /* --color-text-body: #d4d4d8; */
+  /* --color-text-secondary: #a1a1aa; */
+
+  /* Content palette, for charts, figures, and illustrations */
+  /* --color-brand-orange: #f59e0b; */
+  /* --color-brand-coral: #f97316; */
+  /* --color-brand-rose: #ec4899; */
+  /* --color-brand-purple: #8b5cf6; */
+  /* --color-brand-indigo: #6366f1; */
+  /* --color-brand-teal: #14b8a6; */
+  /* --color-brand-blue: #3b82f6; */
+
+  /* Type. Load web fonts with `head` in the config or an @import at the top of this file. */
+  /* --font-ovo: 'Ovo', serif; */       /* display font: titles */
+  /* --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; */ /* body font */
+  /* --font-mono: 'JetBrains Mono', monospace; */
+
+  /* Shape and depth */
+  /* --slide-radius-landscape: 20px; */
+  /* --slide-radius-portrait: 40px; */
+  /* --radius-lg: 0.75rem; */
+  /* --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5); */
+  /* --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); */
+}
+
+/* One theme only: */
+/* :root[data-theme='paper'] { --color-surface: #fffaf2; } */

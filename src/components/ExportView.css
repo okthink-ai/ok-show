@@ -1,0 +1,248 @@
+/* ===========================================
+   SCREEN STYLES (preview before printing)
+   =========================================== */
+
+.export-view {
+  background: var(--color-background);
+  min-height: 100vh;
+  padding: 40px;
+  /* Override body overflow:hidden to allow scrolling */
+  overflow: auto;
+}
+
+/* Force scrolling on body when in export view */
+body:has(.export-view) {
+  overflow: auto;
+  height: auto;
+}
+
+.export-view__header {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+.export-view__header h1 {
+  font-size: 32px;
+  margin-bottom: 16px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.export-view__status {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}
+
+.export-view__header kbd {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.export-view__instructions {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.export-view__instructions strong {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--color-warning);
+  font-size: 16px;
+}
+
+.export-view__instructions ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.export-view__instructions li {
+  margin-bottom: 8px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+.export-view__instructions em {
+  color: var(--color-warning);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.export-view__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.export-view__print-button {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 14px 36px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.export-view__print-button:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.export-view__print-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-view__back-link {
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.export-view__back-link:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+.export-view__slides {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding-bottom: 40px;
+}
+
+.export-slide {
+  /* On screen: show slide with shadow/border for preview */
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  border-radius: var(--slide-radius-landscape);
+  overflow: hidden;
+}
+
+/* Reset slide positioning for export view (not stacked/animated) */
+.export-slide .slide {
+  position: relative;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Disable all animations in export view */
+.export-view .animate-fade-in,
+.export-view .animate-slide-up,
+.export-view .animate-slide-in-right,
+.export-view .animate-scale-in {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Hide the page number that Slide component might render */
+.export-slide .slide__page-number {
+  display: none;
+}
+
+/* Export-specific page number (hidden on screen, shown in print) */
+.export-slide__page-number {
+  display: none;
+}
+
+/* ===========================================
+   PRINT STYLES
+   =========================================== */
+
+@media print {
+  /* Page setup: 20in x 11.25in = 1920px x 1080px at 96 DPI */
+  @page {
+    size: 20in 11.25in;
+    margin: 0;
+  }
+
+  /* Force backgrounds to print (all three for cross-browser) */
+  *,
+  *::before,
+  *::after {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide screen-only elements */
+  .export-view__header {
+    display: none !important;
+  }
+
+  /* Reset export view container for print */
+  .export-view {
+    padding: 0;
+    background: none;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .export-view__slides {
+    gap: 0;
+    padding: 0;
+  }
+
+  /* Each slide fills one page */
+  .export-slide {
+    width: 1920px;
+    height: 1080px;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+
+    /* Page break after each slide (both legacy and modern) */
+    page-break-after: always;
+    break-after: page;
+
+    /* Prevent slide content from breaking across pages */
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Last slide doesn't need page break after */
+  .export-slide:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Ensure slide renders at exact dimensions */
+  .export-slide .slide {
+    width: 1920px !important;
+    height: 1080px !important;
+    border-radius: 0 !important;
+  }
+
+  .export-slide .slide--landscape {
+    border-radius: 0 !important;
+  }
+
+  /* Show page numbers in print */
+  .export-slide__page-number {
+    display: block;
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-sans);
+  }
+}

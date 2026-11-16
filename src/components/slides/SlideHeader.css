@@ -1,0 +1,66 @@
+.slide-header {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.slide-header--landscape {
+  gap: 20px;
+}
+
+.slide-header__label {
+  font-size: var(--slide-footer);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.slide-header__title {
+  font-family: var(--font-ovo);
+  font-size: var(--slide-title-medium);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.slide-header__subtitle {
+  font-size: var(--slide-body-small);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Portrait Layout */
+.slide-header--portrait {
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.slide-header__portrait-label {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-label);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.slide-header__portrait-title {
+  font-family: var(--font-ovo);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.slide-header__portrait-subtitle {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,168 @@
+.video-slide {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.video-slide--landscape {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.video-slide--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.video-slide__player {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+.video-slide__player-inner {
+  position: relative;
+  width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Inside a sized player, fit the largest 16:9 box. The query only matches
+   when the player is a size container; otherwise the aspect-ratio rule above applies. */
+@container (min-width: 0px) {
+  .video-slide__player-inner {
+    width: min(100cqw, calc(100cqh * 16 / 9));
+    height: min(100cqh, calc(100cqw * 9 / 16));
+    max-height: none;
+    aspect-ratio: unset;
+  }
+}
+
+.video-slide__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-slide__poster {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  transition: background var(--transition-fast);
+}
+
+.video-slide__poster:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.video-slide__play-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.video-slide__poster:hover .video-slide__play-icon {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.video-slide__play-icon svg {
+  width: 40px;
+  height: 40px;
+  fill: white;
+  margin-left: 4px;
+}
+
+.video-slide--portrait .video-slide__play-icon {
+  width: 64px;
+  height: 64px;
+}
+
+.video-slide--portrait .video-slide__play-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.video-slide--with-desc {
+  flex-direction: column;
+  gap: 20px;
+}
+
+.video-slide--with-desc .video-slide__player {
+  flex: 1;
+  min-height: 0;
+}
+
+.video-slide__body--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+}
+
+.video-slide__body--portrait .video-slide__player {
+  flex: none;
+  container-type: normal;
+}
+
+.video-slide__description--landscape {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: var(--slide-caption);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-align: center;
+  align-self: center;
+}
+
+.video-slide__description--landscape p {
+  margin: 0;
+}
+
+.video-slide__description--landscape strong {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.video-slide__description--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.video-slide__description--portrait p {
+  margin: 0;
+}
+
+.video-slide__description--portrait strong {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}

@@ -1,0 +1,7 @@
+.practice-sidebar { display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; }
+.practice-sidebar__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid var(--color-border); }
+.practice-sidebar__header h2 { margin: 0; font-size: 18px; }
+.practice-sidebar__header > div { display: flex; gap: 8px; }
+.practice-sidebar__header button { min-width: 36px; min-height: 36px; color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); cursor: pointer; }
+.practice-sidebar__header button:disabled { opacity: .5; cursor: default; }
+.practice-sidebar__empty { padding: 16px; }

@@ -1,0 +1,192 @@
+.outline-sidebar {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.outline-sidebar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.outline-sidebar__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.outline-sidebar__close {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  line-height: 1;
+}
+
+.outline-sidebar__close:hover {
+  color: var(--color-text-primary);
+}
+
+.outline-sidebar__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Slide cards */
+.outline-card {
+  padding: 9px 12px;
+  margin-bottom: 0;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+}
+
+.outline-card--current {
+  border-left-color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.outline-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 3px;
+}
+
+.outline-card__number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-active, #252525);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.outline-card--current .outline-card__number {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.outline-card__template {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+
+.outline-card__header:hover .outline-card__template {
+  color: var(--color-text-secondary);
+}
+
+/* Text content */
+.outline-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 28px;
+}
+
+/* Role-based text styles */
+.outline-text {
+  display: block;
+  line-height: 1.25;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border-left: 2px solid transparent;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.outline-text--label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+
+.outline-text--title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.outline-text--subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.outline-text--body {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  padding-left: 12px;
+}
+
+.outline-text--value {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  color: var(--color-text-primary);
+}
+
+.outline-text--caption {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.outline-text--meta {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* Annotatable state (multi-select mode on) */
+.outline-text--annotatable {
+  cursor: pointer;
+}
+
+.outline-text--annotatable:hover {
+  background: rgba(124, 156, 191, 0.1);
+}
+
+/* Annotated state */
+.outline-text--annotated {
+  border-left-color: var(--color-accent);
+  background: rgba(124, 156, 191, 0.05);
+}
+
+.outline-text__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  margin-right: 4px;
+  padding: 0 4px;
+}
+
+.outline-text__bullet {
+  color: var(--color-text-tertiary);
+  margin-right: 4px;
+}

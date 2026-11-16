@@ -1,0 +1,89 @@
+.bullet-slide {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.bullet-slide--landscape {
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* Centers the list in the space under the header; a long list starts at the top instead of spilling out. */
+.bullet-slide__items-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  container-type: size;
+}
+
+.bullet-slide__items {
+  display: flex;
+  flex-direction: column;
+  /* Tighten the spacing when many items share the height. */
+  gap: min(48px, 6cqh);
+  margin: 0;
+  padding: 0;
+  padding-right: 80px;
+  list-style: none;
+}
+
+.bullet-slide__item {
+  font-size: var(--slide-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  padding-left: 60px;
+  position: relative;
+  text-rendering: optimizeLegibility;
+}
+
+.bullet-slide__item::before {
+  content: '•';
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  font-size: var(--slide-body);
+  font-weight: 400;
+}
+
+.bullet-slide__portrait-item::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-text-body);
+  font-size: 24px;
+  font-weight: 400;
+}
+
+/* Portrait Layout */
+.bullet-slide--portrait {
+  flex-direction: column;
+  gap: 40px;
+}
+
+.bullet-slide__portrait-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: 1;
+  justify-content: center;
+}
+
+.bullet-slide__portrait-item {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  padding-left: 24px;
+  position: relative;
+}

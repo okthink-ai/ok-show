@@ -1,0 +1,69 @@
+.mobile-frame {
+  position: relative;
+  background: linear-gradient(135deg, #2a2a2e, #1a1a1d);
+  border-radius: 2.5rem;
+  padding: 0.75rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+  width: 393px;
+  height: 852px;
+  transform-origin: center center;
+  transition: transform var(--transition-base);
+  flex-shrink: 0; /* Prevent squashing in flex container */
+}
+
+.mobile-frame::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: var(--color-neutral-950);
+  border-radius: var(--radius-full);
+  z-index: 1;
+}
+
+.mobile-frame__screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--color-background);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack vertically */
+}
+
+/* Ensure slide takes available space */
+.mobile-frame__screen .slide {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* Allow scrolling if content is too long */
+}
+
+.mobile-frame__footer {
+  position: relative; /* Change from absolute to relative */
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  pointer-events: auto; /* Allow interaction with footer buttons if any */
+  z-index: 99;
+  flex-shrink: 0; /* Don't shrink the footer */
+  background: var(--color-background-secondary); /* Ensure background visibility */
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.mobile-frame__footer .footer {
+  background: transparent;
+  border: none;
+  padding-bottom: 8px; /* Space for progress bar */
+}
+
+
+.mobile-progress-bar__fill {
+  height: 100%;
+  background-color: var(--color-accent);
+  transition: width 0.3s ease-out;
+}
