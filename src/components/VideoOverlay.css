@@ -1,0 +1,113 @@
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 5, 15, 0.92);
+  backdrop-filter: blur(8px);
+  animation: video-overlay-in 300ms ease forwards;
+}
+
+@keyframes video-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.video-overlay__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 90%;
+  max-height: 90%;
+}
+
+.video-overlay__video {
+  width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  background: #000;
+}
+
+.video-overlay__close {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.video-overlay__close:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.video-play-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(112, 80, 200, 0.3);
+  background: rgba(112, 80, 200, 0.15);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--slide-footer);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  letter-spacing: 0.01em;
+}
+
+.video-play-button:hover {
+  background: rgba(112, 80, 200, 0.25);
+  border-color: rgba(112, 80, 200, 0.5);
+}
+
+.video-play-button__icon {
+  width: 36px;
+  height: 36px;
+  opacity: 0.9;
+  align-self: center;
+}
+
+.video-play-button__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.video-play-button__label {
+  line-height: 1.2;
+}
+
+.video-play-button__subtitle {
+  font-size: 0.7em;
+  font-weight: 400;
+  opacity: 0.6;
+  line-height: 1.2;
+}
+
+.video-play-button--portrait {
+  font-size: 20px;
+  padding: 14px 28px;
+  gap: 10px;
+}
+
+.video-play-button--portrait .video-play-button__icon {
+  width: 16px;
+  height: 16px;
+}

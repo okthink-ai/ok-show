@@ -1,0 +1,99 @@
+{
+  "name": "ok-vibe-slides",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okthink-ai/ok-vibe-slides.git"
+  },
+  "description": "Presentation engine with slide templates, annotations, and inspector mode",
+  "type": "module",
+  "bin": {
+    "ok-vibe-slides": "bin/ok-vibe-slides.mjs"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./config": {
+      "types": "./node/project.d.mts",
+      "default": "./node/project.mjs"
+    },
+    "./client": {
+      "types": "./src/client.d.ts"
+    },
+    "./slides/*": "./src/components/slides/*.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "node",
+    "server",
+    "scripts",
+    "debug-cli",
+    "src",
+    "public",
+    "index.html",
+    "vite.config.ts",
+    "!**/*.test.*",
+    "!src/test"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "node bin/ok-vibe-slides.mjs dev",
+    "dev:vite": "vite",
+    "dev:sync": "node bin/ok-vibe-slides.mjs sync",
+    "sparkle": "node bin/ok-vibe-slides.mjs sparkle",
+    "debug": "node bin/ok-vibe-slides.mjs debug",
+    "slides:audit": "node bin/ok-vibe-slides.mjs audit",
+    "slides:audit:json": "node bin/ok-vibe-slides.mjs audit --json",
+    "build": "tsc -b && node bin/ok-vibe-slides.mjs build",
+    "lint": "eslint .",
+    "preview": "node bin/ok-vibe-slides.mjs preview",
+    "type-check": "tsc -b",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "demo:record": "playwright test --config playwright.demo.config.ts"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
+    "@types/hast": "^3.0.5",
+    "@vitejs/plugin-react": "^5.0.0",
+    "playwright-core": "^1.61.1",
+    "react-redux": "^9.2.0",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vite": "^7.1.2",
+    "ws": "^8.21.0"
+  },
+  "peerDependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.61.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "jsdom": "^29.1.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vitest": "^4.1.10"
+  }
+}

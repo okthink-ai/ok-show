@@ -1,0 +1,118 @@
+.developer-tools-drawer {
+  position: relative;
+  display: flex;
+  flex: 0 0 var(--developer-tools-width, 460px);
+  width: var(--developer-tools-width, 460px);
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  animation: slideInLeft var(--transition-base) ease-out;
+}
+
+.developer-tools-drawer__rail {
+  display: flex;
+  width: 52px;
+  flex: 0 0 52px;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-background-secondary);
+}
+
+.developer-tools-drawer__section-button {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.developer-tools-drawer__section-button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.developer-tools-drawer__section-button--active {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent-hover);
+}
+
+.developer-tools-drawer__section-button > span:last-child:not(:first-child) {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  display: grid;
+  min-width: 15px;
+  height: 15px;
+  place-items: center;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font: 700 9px/1 var(--font-sans);
+}
+
+.developer-tools-drawer__panel {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.developer-tools-drawer__resize-handle {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.developer-tools-drawer__resize-handle::after {
+  position: absolute;
+  top: 0;
+  right: 3px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  content: '';
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.developer-tools-drawer__resize-handle:hover::after,
+.developer-tools-drawer__resize-handle:focus-visible::after,
+.is-resizing-developer-tools .developer-tools-drawer__resize-handle::after {
+  opacity: 1;
+}
+
+.is-resizing-developer-tools {
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.developer-tools-drawer--mobile {
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  right: 0;
+  bottom: 65px;
+  left: 0;
+  width: 100vw;
+  flex-basis: 100vw;
+  box-shadow: var(--shadow-lg);
+}

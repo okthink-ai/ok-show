@@ -1,0 +1,51 @@
+.talk-practice {
+  --practice-surface: var(--presenter-panel, var(--color-surface));
+  --practice-text: var(--presenter-text, var(--color-text-primary));
+  --practice-muted: var(--presenter-text-muted, var(--color-text-secondary));
+  --practice-accent: var(--presenter-accent, var(--color-accent));
+  position: relative;
+  display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column;
+  color: var(--practice-text);
+}
+.talk-practice__reading-area { container-type: size; position: relative; display: flex; flex: 1; min-height: 0; min-width: 0; }
+.talk-practice__viewport { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; }
+.talk-practice__viewport:focus { outline: none; }
+.talk-practice__document { position: relative; }
+.talk-practice__content { padding: 50cqh 56px 50cqh 16px; font-size: var(--practice-text-size, 20px); line-height: 1.65; overflow-wrap: anywhere; }
+.practice-annotation-pins { position: absolute; inset: 0; pointer-events: none; }
+.practice-annotation-pin { position: absolute; right: 4px; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--practice-surface); cursor: pointer; pointer-events: auto; }
+.practice-annotation-pin[hidden] { display: none; }
+.practice-annotation-pin__badge { display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 4px; border-radius: 50%; background: var(--practice-accent); font: 600 13px/1 sans-serif; }
+.talk-practice__content > :first-child { margin-top: 0; }
+.talk-practice__content > :last-child { margin-bottom: 0; }
+.talk-practice__content p, .talk-practice__content ul, .talk-practice__content ol, .talk-practice__content pre, .talk-practice__table { margin: 0 0 1em; }
+.talk-practice__content ul, .talk-practice__content ol { padding-left: 1.3em; }
+.talk-practice__content h1, .talk-practice__content h2, .talk-practice__content h3, .talk-practice__content h4 { margin: 1.2em 0 .6em; line-height: 1.25; color: var(--practice-text); }
+.talk-practice__content h1 { font-size: 1.6em; }
+.talk-practice__content h2 { font-size: 1.35em; }
+.talk-practice__content h3, .talk-practice__content h4 { font-size: 1.1em; }
+.talk-practice__content a { color: var(--practice-accent); text-decoration: underline; }
+.talk-practice__content pre { white-space: pre-wrap; font-size: .8em; }
+.talk-practice__content blockquote { padding-left: 12px; border-left: 2px solid var(--practice-accent); }
+.talk-practice__table { overflow-x: auto; }
+.talk-practice__table table { border-collapse: collapse; font-size: .8em; }
+.talk-practice__table td, .talk-practice__table th { padding: 8px; border: 1px solid var(--practice-muted); text-align: left; }
+.talk-practice__cue { display: inline-block; text-align: left; white-space: normal; font: inherit; font-size: .85em; line-height: 1.4; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--practice-accent) 25%, transparent); border-radius: 0; color: var(--practice-accent); background: color-mix(in srgb, var(--practice-accent) 5%, transparent); cursor: pointer; }
+.talk-practice__cue[data-active='true'] { background: color-mix(in srgb, var(--practice-accent) 22%, transparent); }
+.talk-practice__cue[aria-disabled='true'], .talk-practice__missing-cue { opacity: .6; }
+.talk-practice__guide { position: absolute; top: 50%; left: 10px; right: 10px; border-top: 1px solid var(--practice-accent); opacity: .2; pointer-events: none; }
+.talk-practice__highlight { position: absolute; top: 0; will-change: transform; left: 6px; right: 6px; background: color-mix(in srgb, var(--practice-accent) 13%, transparent); border-left: 3px solid var(--practice-accent); border-radius: 0; pointer-events: none; }
+
+.talk-practice__connection { flex-basis: 100%; }
+.talk-practice__toolbar { display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 4px; padding: 6px; color: var(--practice-muted); }
+.talk-practice__toolbar button { display: inline-flex; flex: 0 0 44px; align-items: center; justify-content: center; gap: 6px; min-width: 0; min-height: 44px; padding: 0; border: 0; border-radius: 0; font-size: 13px; font-weight: 600; color: var(--practice-muted); background: transparent; cursor: pointer; }
+.talk-practice__toolbar button:hover:not(:disabled) { color: var(--practice-text); background: color-mix(in srgb, var(--practice-text) 7%, transparent); }
+.talk-practice__toolbar button:disabled { opacity: .35; cursor: default; }
+.talk-practice__toolbar button:focus-visible { outline: 2px solid var(--practice-accent); outline-offset: -2px; }
+.talk-practice__toolbar button > span[aria-hidden] { display: inline-flex; align-items: center; }
+.talk-practice__toolbar .talk-practice__follow[aria-pressed='true'] { color: var(--presenter-success, var(--practice-accent)); background: color-mix(in srgb, var(--presenter-success, var(--practice-accent)) 9%, transparent); }
+
+.talk-practice__viewport { scrollbar-width: thin; scrollbar-color: var(--presenter-border, var(--practice-muted)) transparent; }
+
+.talk-practice__toolbar .talk-practice__copy { flex: 0 0 auto; padding: 0 10px; }
+.talk-practice__copy-status { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); }

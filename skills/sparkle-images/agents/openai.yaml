@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sparkle Images"
+  short_description: "Generate project images with the Sparkle API"
+  default_prompt: "Use $sparkle-images to generate a styled image and save it in this project."

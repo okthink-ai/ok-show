@@ -1,0 +1,14 @@
+{
+  "name": "ok-vibe-slides-consumer-fixture",
+  "private": true,
+  "type": "module",
+  "description": "A project that installs ok-vibe-slides as a package. Used by the package tests.",
+  "scripts": {
+    "dev": "ok-vibe-slides dev",
+    "build": "ok-vibe-slides build",
+    "preview": "ok-vibe-slides preview"
+  },
+  "dependencies": {
+    "ok-vibe-slides": "file:../../.."
+  }
+}

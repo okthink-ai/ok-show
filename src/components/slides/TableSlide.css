@@ -1,0 +1,133 @@
+.table-slide {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.table-slide--landscape {
+  flex-direction: column;
+  gap: 30px;
+}
+
+.table-slide__table-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 0;
+}
+
+.table-slide__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-slide__header-cell {
+  font-size: var(--slide-footer);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: left;
+  padding: 16px 18px;
+  border-bottom: 2px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-text-primary) 3%, transparent);
+}
+
+.table-slide__header-cell--highlight {
+  background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+  color: var(--color-accent);
+}
+
+.table-slide__label-cell {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  width: 160px;
+}
+
+.table-slide__row {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-slide__row:last-child {
+  border-bottom: none;
+}
+
+.table-slide__cell {
+  font-size: var(--slide-tiny);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  padding: 16px 18px;
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.table-slide__cell--highlight {
+  background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
+  font-weight: 500;
+}
+
+/* Portrait Layout - Compact Cards */
+.table-slide--portrait {
+  flex-direction: column;
+  gap: 16px;
+}
+
+.table-slide__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 60px;
+}
+
+.table-slide__list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--color-text-primary) 2%, transparent);
+  border-radius: 6px;
+}
+
+.table-slide__list-item--highlight {
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  outline: 1px solid var(--color-accent);
+}
+
+.table-slide__list-item-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.table-slide__list-item--highlight .table-slide__list-item-header {
+  color: var(--color-accent);
+}
+
+.table-slide__list-item-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+}
+
+.table-slide__list-item-row {
+  display: contents;
+}
+
+.table-slide__list-item-label {
+  font-size: 10px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+.table-slide__list-item-value {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}

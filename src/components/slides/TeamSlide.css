@@ -1,0 +1,203 @@
+/* Base slide styles */
+.team-slide {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Landscape Layout */
+.team-slide--landscape {
+  display: flex;
+  gap: 80px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Column 1: Info */
+.team-slide__info-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 0 0 700px;
+}
+
+/* Members Container: Grid for 2 founder cards */
+.team-slide__members-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-slide__description {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.team-slide__description p {
+  font-size: var(--slide-footer);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  margin: 0;
+}
+
+.team-slide__bio {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.team-slide__bio-name {
+  font-family: var(--font-ovo);
+  font-size: var(--slide-body-small);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.team-slide__bio-desc {
+  font-size: var(--slide-footer);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+.team-slide__team-photo {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.team-slide__team-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Columns 2 & 3: Member Cards */
+.team-slide__member-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 100%;
+  background: var(--color-surface-card); /* Use semantic token to match ThreePanelSlide/FourPanelSlide */
+  color: var(--color-text-primary);
+}
+
+/* Specific background overrides removed as per request */
+/* .team-slide__member-card--1 { background: var(--color-neutral-900); } */
+/* .team-slide__member-card--2 { background: var(--color-neutral-800); } */
+
+.team-member__image-container {
+  flex: 1;
+  width: 100%;
+  border-radius: 8px; /* Slight rounding for image inside card */
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent); /* Placeholder bg */
+  position: relative;
+  min-height: 200px; /* Ensure image area has size */
+}
+
+.team-member__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.team-member__placeholder {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+
+
+/* Portrait Layout - Keeping largely as is but ensuring no conflicts */
+.team-slide--portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.team-slide__portrait-description {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.team-slide__portrait-description p {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.team-slide__portrait-description .team-slide__bio-name {
+  font-size: 24px;
+}
+
+.team-slide__portrait-description .team-slide__bio-desc {
+  font-size: 18px;
+  color: var(--color-text-body);
+}
+
+.team-slide__portrait-team-photo {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.team-slide__portrait-team-photo-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.team-slide__portrait-photos {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.team-member-portrait__photo {
+  flex: 1;
+  height: 200px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.team-member-portrait__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-member-portrait__placeholder {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+
+.team-slide__portrait-general p {
+  color: var(--color-text-body);
+}
+
+.team-slide__video-action {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+

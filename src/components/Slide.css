@@ -1,0 +1,187 @@
+.slide {
+  display: flex;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * Fullscreen paints its own black backdrop behind whatever the scaled slide does
+ * not cover. Carrying the slide surface onto the container makes the remaining
+ * letterbox on a screen that is not exactly 16:9 read as part of the slide, and
+ * the rounded corners have no edge left to soften.
+ */
+.slide-container:fullscreen {
+  background: var(--color-surface);
+}
+
+.slide-container:fullscreen .slide--landscape,
+.slide-container:fullscreen .slide--portrait {
+  border-radius: 0;
+}
+
+/*
+ * The code and its caption are one widget. Stacking them in a column and letting
+ * the code keep its own square means the label grows the block upward instead of
+ * shrinking the scannable area.
+ */
+.slide__qr-code {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 188px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.slide__qr-code img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.slide__qr-code-label {
+  color: #050505;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.slide--portrait .slide__qr-code {
+  width: 128px;
+}
+
+.slide--portrait .slide__qr-code-label {
+  font-size: 14px;
+}
+
+.slide--landscape {
+  width: 1920px;
+  height: 1080px;
+  padding: 50px;
+  background: var(--color-surface);
+  background-image: var(--gradient-glow);
+  border-radius: var(--slide-radius-landscape);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide--portrait {
+  width: 1080px;
+  height: 1920px;
+  padding: 50px;
+  background: var(--color-surface);
+  background-image: var(--gradient-glow);
+  border-radius: var(--slide-radius-portrait);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* When portrait slide is inside mobile frame, make it responsive */
+.mobile-frame .slide--portrait {
+  width: 100%;
+  height: 100%;
+  padding: 20px; /* Adjust padding for mobile frame */
+  overflow-y: auto;
+
+  /* Scale typography for mobile frame */
+  --slide-title-huge: 64px;
+  --slide-title-large: 48px;
+  --slide-title-medium: 32px;
+  --slide-title-small: 24px;
+  --slide-subtitle: 32px;
+  --slide-body-large: 20px;
+  --slide-body: 18px;
+  --slide-body-small: 16px;
+  --slide-caption: 14px;
+  --slide-footer: 12px;
+  --slide-tiny: 10px;
+  border-radius: 0; /* Remove explicit border radius to match screen */
+}
+
+.mobile-frame .slide__qr-code {
+  right: 12px;
+  bottom: 12px;
+  width: 76px;
+  padding: 4px;
+}
+
+.mobile-frame .slide__qr-code-label {
+  font-size: 9px;
+}
+
+/* On actual mobile viewports, portrait slides fill container */
+@media (max-width: 767px) {
+  .slide--portrait {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    border-radius: 0;
+    overflow-y: auto;
+
+    /* Scale typography for mobile */
+    --slide-title-huge: 64px;
+    --slide-title-large: 48px;
+    --slide-title-medium: 32px;
+    --slide-title-small: 24px;
+    --slide-subtitle: 32px;
+    --slide-body-large: 20px;
+    --slide-body: 18px;
+    --slide-body-small: 16px;
+    --slide-caption: 14px;
+    --slide-footer: 12px;
+    --slide-tiny: 10px;
+  }
+
+  .slide__qr-code {
+    right: 12px;
+    bottom: 12px;
+    width: 76px;
+    padding: 4px;
+  }
+
+  .slide__qr-code-label {
+    font-size: 9px;
+  }
+}
+
+.slide__content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.slide__content > * {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Ensure portrait content is properly constrained */
+.slide--portrait .slide__content {
+  flex-direction: column;
+}
+
+.slide__page-number {
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+  font-size: var(--slide-tiny);
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+}

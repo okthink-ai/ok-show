@@ -1,0 +1,15 @@
+/*
+ * Project brand tokens, loaded after the engine's design system. The
+ * `[data-theme]` selector matches every built-in theme, so the brand wins
+ * whichever theme is active. Target one theme (`[data-theme='midnight']`)
+ * to restyle only that theme.
+ */
+:root,
+:root[data-theme] {
+  --color-accent: rgb(228, 87, 46);
+}
+
+/* Rules load after the template stylesheets, so equal-specificity overrides win. */
+.slide-header__label {
+  letter-spacing: 0.3em;
+}
