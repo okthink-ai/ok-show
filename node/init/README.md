@@ -29,10 +29,16 @@ fallback. ElevenLabs enterprise realtime additionally needs entitlement,
 `ELEVENLABS_TRANSLATION_VOICE_ID`, and optionally its separate enterprise key.
 
 Microphone access from another device needs HTTPS (localhost is the normal
-development exception). On Tailscale, `npm run dev -- --https` obtains a
-trusted MagicDNS certificate in git-ignored `.tmp/` storage and prints secure
-phone links. Provider translation can be billable, including
-audio output that ok-show discards. Once started, translation remains active
+development exception). One option is to add the machine's exact MagicDNS
+hostname to `vite.server.allowedHosts` in `ok-show.config.ts`, run
+`npm run dev -- --host 127.0.0.1 --port 5199`, and run
+`tailscale serve --bg 5199` in another terminal. Use the HTTPS URL Tailscale
+prints with the `?session=…&token=…` query from ok-show's deck link, or add
+`/notes` before that query for the presenter. See the engine README for the
+full Tailscale Serve setup and shutdown instructions.
+
+Provider translation can be billable, including audio output that ok-show
+discards. Once started, translation remains active
 until Stop: transient congestion drops stale audio to stay current, and
 temporary connection/provider failures reconnect automatically. Stop drains
 final output and retains it for eight seconds; Clear removes it immediately.

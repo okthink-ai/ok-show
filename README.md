@@ -463,12 +463,33 @@ recoverable: fix browser access and press Start again. Native translation
 endpoints can generate and bill for audio even though ok-show discards all
 translated audio and plays none.
 
-For a trusted phone-accessible development URL on a connected Tailscale
-machine, run `npm run dev -- --https`. ok-show obtains the machine's MagicDNS
-certificate into the project's git-ignored `.tmp/tailscale-https/` directory
-and prints tokenized `https://<machine>.<tailnet>.ts.net:<port>` deck and
-presenter links. Tailscale MagicDNS and HTTPS must already be enabled; set
-`TAILSCALE_CLI` only when the CLI is in a nonstandard location.
+One way to provide trusted HTTPS without coupling ok-show to a network vendor
+is [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve). Add
+your machine's exact MagicDNS hostname to the project config so Vite accepts
+the proxy's `Host` header:
+
+```typescript
+export default defineConfig({
+  vite: { server: { allowedHosts: ['your-machine.your-tailnet.ts.net'] } },
+});
+```
+
+Then run ok-show on a fixed local port and proxy that port from another
+terminal:
+
+```bash
+npm run dev -- --host 127.0.0.1 --port 5199
+tailscale serve --bg 5199
+```
+
+Tailscale prints a certificate-valid `https://…ts.net` URL available within
+your tailnet. Copy the `?session=…&token=…` query from the deck link printed by
+ok-show onto that HTTPS URL; use the same query after `/notes` for the
+presenter view. Tailscale Serve requires HTTPS to be enabled for the tailnet
+and respects its access-control rules. Disable this proxy with
+`tailscale serve --https=443 off`. Other trusted reverse proxies work the same
+way: proxy the local ok-show port, allow the proxy's exact hostname in Vite,
+and preserve WebSocket upgrades for `/speaker-sync` and `/translation-sync`.
 
 Live translation exists only in the authoring runtime (`ok-show dev`, with
 the same service available through `ok-show sync`). Static `ok-show build`,

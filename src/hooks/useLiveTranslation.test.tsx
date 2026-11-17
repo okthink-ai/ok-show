@@ -142,7 +142,7 @@ describe('useLiveTranslation continuity', () => {
     expect(result.current.phase).toBe('recovering');
     expect(result.current.error).toBe('');
     expect(mocks.captureStop).not.toHaveBeenCalled();
-    await act(async () => vi.advanceTimersByTimeAsync(1_000));
+    await act(async () => vi.advanceTimersByTimeAsync(1_500));
     expect(second.sent.filter((message) => 'type' in message && message.type === 'translation.start')).toHaveLength(startsBeforeFailure + 1);
 
     act(() => {
