@@ -28,7 +28,7 @@ test('an installed consumer resolves the translation AudioWorklet and service pr
   await panel.getByRole('button', { name: 'Start microphone' }).click();
   await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toContainText('Deterministic translated caption');
   await panel.getByRole('button', { name: 'Stop' }).click();
-  await expect(panel.getByText('idle', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Off', { exact: true })).toBeVisible();
 });
 
 test('project styles override the engine design tokens', async ({ page }) => {

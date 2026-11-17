@@ -92,8 +92,7 @@ async function authenticate(socket: WebSocket, values: Partial<Record<string, un
   const capabilities = until(socket, 'translation.capabilities');
   const status = until(socket, 'translation.status');
   joinTranslation(socket, values);
-  await capabilities;
-  await status;
+  return { capabilities: await capabilities, status: await status };
 }
 
 describe('translation service', () => {
@@ -122,14 +121,15 @@ describe('translation service', () => {
   it('enforces producer permissions and one owner per session/deck', async () => {
     const { url } = await serverFor();
     const owner = await connect(`${url}/translation-sync`);
-    await authenticate(owner);
+    await authenticate(owner, { clientId: 'presenter-owner', surface: 'presenter' });
     const ownerReady = until(owner, 'translation.ready');
     owner.send(JSON.stringify({ type: 'translation.start', version: 1, config: { backend: 'openai-realtime', sourceLanguage: 'en', targetLanguage: 'es' } }));
     const ready = await ownerReady;
     expect(ready.sampleRate).toBe(24000);
 
     const other = await connect(`${url}/translation-sync`);
-    await authenticate(other);
+    const otherJoin = await authenticate(other);
+    expect(otherJoin.status).toMatchObject({ producerClientId: 'presenter-owner', producerSurface: 'presenter' });
     const alreadyActive = until(other, 'translation.error');
     other.send(JSON.stringify({ type: 'translation.start', version: 1, config: { backend: 'openai-realtime', sourceLanguage: 'en', targetLanguage: 'es' } }));
     await expect(alreadyActive).resolves.toMatchObject({ code: 'already_active' });

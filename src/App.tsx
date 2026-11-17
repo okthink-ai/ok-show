@@ -182,7 +182,7 @@ function App() {
     theme,
     enabled: syncEnabled,
   });
-  const liveTranslation = useLiveTranslation({ presentationId: currentPresentationId, enabled: syncEnabled });
+  const liveTranslation = useLiveTranslation({ presentationId: currentPresentationId, enabled: syncEnabled, surface: 'deck' });
   const translationPreferences = useAppSelector((state) => state.ui.translation);
   const syncSessionId = getSyncSession();
   const speakerNotesSync = usePresentationSync({

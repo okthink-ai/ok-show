@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { LiveTranslationResult } from '../hooks/useLiveTranslation';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -16,6 +17,7 @@ const BACKENDS: Array<{ value: TranslationBackend; label: string }> = [
   { value: 'elevenlabs-scribe', label: 'ElevenLabs stable phrases' },
   { value: 'elevenlabs-realtime', label: 'ElevenLabs enterprise realtime' },
 ];
+const PHASE_LABELS = { off: 'Off', starting: 'Starting', live: 'Live', recovering: 'Recovering', blocked: 'Blocked', stopping: 'Stopping' } as const;
 
 interface LiveTranslationPanelProps {
   runtime: LiveTranslationResult;
@@ -24,8 +26,10 @@ interface LiveTranslationPanelProps {
 
 const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact = false }) => {
   const dispatch = useAppDispatch();
+  const [now, setNow] = useState(Date.now());
   const preferences = useAppSelector((state) => state.ui.translation);
-  const active = runtime.phase === 'connecting' || runtime.phase === 'listening' || runtime.phase === 'stopping';
+  const active = ['starting', 'live', 'recovering', 'stopping'].includes(runtime.phase);
+  const locallyActive = active && runtime.ownership !== 'remote';
   const capability = preferences.backend ? runtime.capabilities?.backends[preferences.backend] : undefined;
   const targetLanguage: TranslationLanguage = preferences.sourceLanguage === 'en' ? 'es' : 'en';
   const config: TranslationConfig | null = preferences.backend ? {
@@ -39,11 +43,21 @@ const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact 
       ? 'Choose a configured provider.'
       : capability && !capability.configured
         ? `Set ${capability.missing.join(', ')} in the project .env and restart ok-show.` : '';
+  useEffect(() => {
+    if (!active) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, [active]);
+  const freshness = runtime.health.lastCaptionAt
+    ? `Last caption ${Math.max(0, Math.floor((now - runtime.health.lastCaptionAt) / 1_000))}s ago`
+    : active ? 'Waiting for speech' : '';
+  const owner = runtime.ownership === 'local' ? `This ${runtime.ownerSurface || 'device'} owns the microphone`
+    : runtime.ownership === 'remote' ? `Live from ${runtime.ownerSurface === 'presenter' ? 'Presenter' : 'Deck'}` : '';
 
   return (
     <section className={`live-translation-panel${compact ? ' live-translation-panel--compact' : ''}`} aria-label="Live translation">
       <header>
-        <div><h2>Live translation</h2><p data-phase={runtime.phase}>{runtime.phase}</p></div>
+        <div><h2>Live translation</h2><p data-phase={runtime.phase}>{PHASE_LABELS[runtime.phase]}</p></div>
         <label className="live-translation-panel__visibility"><input type="checkbox" checked={preferences.captionsVisible} onChange={(event) => dispatch(setCaptionsVisible(event.target.checked))} /> Show</label>
       </header>
       <div className="live-translation-panel__fields">
@@ -68,9 +82,12 @@ const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact 
       <div className="live-translation-panel__controls">
         {!active
           ? <button type="button" disabled={!config || !capability?.configured || !runtime.connected} onClick={() => config && void runtime.start(config)}>Start microphone</button>
-          : <button type="button" disabled={runtime.phase === 'stopping'} onClick={() => void runtime.stop()}>Stop</button>}
-        <button type="button" disabled={!runtime.caption} onClick={runtime.clear}>Clear</button>
+          : locallyActive
+            ? <button type="button" disabled={runtime.phase === 'stopping'} onClick={() => void runtime.stop()}>Stop</button>
+            : <button type="button" disabled>Running remotely</button>}
+        <button type="button" disabled={!runtime.caption || runtime.ownership === 'remote'} onClick={runtime.clear}>Clear</button>
       </div>
+      {(owner || freshness) && <p className="live-translation-panel__health" role="status" data-dropped-audio={runtime.health.droppedAudioChunks} data-reconnects={runtime.health.reconnectCount} data-first-caption-ms={runtime.health.firstCaptionLatencyMs ?? ''} data-recovering-since={runtime.health.recoveringSince ?? ''}>{[owner, freshness].filter(Boolean).join(' · ')}</p>}
       <label className="live-translation-panel__size">
         <span>Caption size</span>
         <input type="range" min="28" max="72" step="4" value={preferences.captionFontSize} onChange={(event) => dispatch(setCaptionFontSize(event.target.valueAsNumber))} />

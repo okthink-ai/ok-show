@@ -11,9 +11,10 @@
 .live-translation-panel__visibility { flex-direction: row !important; align-items: center; }
 .live-translation-panel__size { flex-direction: row !important; align-items: center; justify-content: space-between; }
 .live-translation-panel__size input { flex: 1; }
-.live-translation-panel__hint, .live-translation-panel__error, .live-translation-panel__warning, .live-translation-panel__empty, .live-translation-panel__disclosure { margin: 0; font-size: 0.8rem; line-height: 1.45; }
+.live-translation-panel__hint, .live-translation-panel__error, .live-translation-panel__warning, .live-translation-panel__health, .live-translation-panel__empty, .live-translation-panel__disclosure { margin: 0; font-size: 0.8rem; line-height: 1.45; }
 .live-translation-panel__error { color: var(--color-error); }
 .live-translation-panel__warning { color: var(--color-warning); }
+.live-translation-panel__health { color: var(--color-text-secondary); }
 .live-translation-panel__hint, .live-translation-panel__empty, .live-translation-panel__disclosure { color: var(--color-text-secondary); }
 .live-translation-panel__preview { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 .live-translation-panel__preview > p { margin: 0; font-size: 0.8rem; overflow-wrap: anywhere; }

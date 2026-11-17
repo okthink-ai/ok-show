@@ -29,7 +29,9 @@ fallback. ElevenLabs enterprise realtime additionally needs entitlement,
 `ELEVENLABS_TRANSLATION_VOICE_ID`, and optionally its separate enterprise key.
 
 Microphone access from another device needs HTTPS (localhost is the normal
-development exception). Provider translation can be billable, including
+development exception). On Tailscale, `npm run dev -- --https` obtains a
+trusted MagicDNS certificate in git-ignored `.tmp/` storage and prints secure
+phone links. Provider translation can be billable, including
 audio output that ok-show discards. Once started, translation remains active
 until Stop: transient congestion drops stale audio to stay current, and
 temporary connection/provider failures reconnect automatically. Stop drains

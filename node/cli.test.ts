@@ -15,6 +15,7 @@ describe('parseCliArgs', () => {
       .toEqual({ command: 'dev', options: { root: 'talk', config: 'custom.config.ts', port: 5300, host: '0.0.0.0', mode: 'staging' }, forwarded: [] });
     expect(parseCliArgs(['dev', '--host']).options.host).toBe(true);
     expect(parseCliArgs(['dev', '--host', '--port', '5300']).options).toEqual({ host: true, port: 5300 });
+    expect(parseCliArgs(['dev', '--https']).options).toEqual({ https: true });
   });
 
   it('rejects bad input with a pointer to help', () => {

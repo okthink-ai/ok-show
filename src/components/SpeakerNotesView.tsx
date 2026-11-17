@@ -99,7 +99,7 @@ export default function SpeakerNotesView() {
   const current = slides[safeSlide];
   const next = slides[safeSlide + 1];
   const { status, error, notes, notesLoaded } = usePresentationSync({ dispatch, presentationId: presentation?.id ?? '', slideIndex: safeSlide, totalSlides: slides.length, theme, role: 'notes', canNavigate: true });
-  const liveTranslation = useLiveTranslation({ presentationId: presentation?.id ?? '' });
+  const liveTranslation = useLiveTranslation({ presentationId: presentation?.id ?? '', surface: 'presenter' });
   const notesRef = useRef<HTMLElement>(null);
   const annotationCount = useAppSelector(state => state.annotations.annotations.filter(item => item.presentationId === presentation.id).length);
   const storedReadingMode = useAppSelector((state) => state.ui.presenterReadingMode);

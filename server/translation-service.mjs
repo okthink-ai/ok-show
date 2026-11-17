@@ -10,6 +10,7 @@ import {
   validTranslationId,
 } from './translation-protocol.mjs';
 import { createTranslationAdapters } from './translation/providers/index.mjs';
+import { translationFailureDisposition } from '../src/translation/failurePolicy.mjs';
 
 const MAX_PAYLOAD_BYTES = 24 * 1024;
 const MAX_MESSAGES_PER_SECOND = 30;
@@ -25,6 +26,10 @@ function backendProvider(backend) {
 
 function send(socket, message) {
   if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
+}
+
+function failure(code, message) {
+  return { code, message, disposition: translationFailureDisposition(code) };
 }
 
 function deadline(promise, milliseconds) {
@@ -98,8 +103,9 @@ export function createTranslationService({
   const clientMeta = new WeakMap();
   const sessions = new Map();
 
-  const noteAudioDrop = (run, reason) => {
+  const noteAudioDrop = (state, run, reason) => {
     run.droppedAudioChunks += 1;
+    run.totalDroppedAudioChunks += 1;
     const now = Date.now();
     if (now - run.lastAudioDropLogAt < 5_000) return;
     log('audio_dropped', {
@@ -107,6 +113,11 @@ export function createTranslationService({
       runId: run.id,
       reason,
       chunks: run.droppedAudioChunks,
+    });
+    broadcast(state, {
+      type: 'translation.health', version: 1,
+      sessionId: state.sessionId, presentationId: state.presentationId,
+      runId: run.id, droppedAudioChunks: run.totalDroppedAudioChunks,
     });
     run.droppedAudioChunks = 0;
     run.lastAudioDropLogAt = now;
@@ -127,6 +138,8 @@ export function createTranslationService({
         latest: null,
         sourceText: '',
         status: 'idle',
+        producerClientId: '',
+        producerSurface: '',
         clearTimer: undefined,
         snapshotTimer: undefined,
         pendingSnapshot: null,
@@ -147,6 +160,7 @@ export function createTranslationService({
       presentationId: state.presentationId,
       phase,
       runId: state.run?.id,
+      ...(state.producerClientId ? { producerClientId: state.producerClientId, producerSurface: state.producerSurface } : {}),
       ...extra,
     });
   };
@@ -229,6 +243,8 @@ export function createTranslationService({
     run.connection?.close();
     state.run = null;
     state.producer = null;
+    state.producerClientId = '';
+    state.producerSurface = '';
   };
   async function failRun(state, run, error) {
     if (state.run !== run) return;
@@ -241,7 +257,8 @@ export function createTranslationService({
       provider_timeout: 'The translation provider timed out.',
     };
     const localMessage = localErrors[error?.code];
-    const clean = localMessage ? { code: error.code, message: localMessage } : sanitizedProviderError(error);
+    const sanitized = localMessage ? { code: error.code, message: localMessage } : sanitizedProviderError(error);
+    const clean = failure(sanitized.code, sanitized.message);
     log('error', { backend: run.config.backend, runId: run.id, code: clean.code });
     teardownRun(state, run);
     status(state, 'error', clean);
@@ -277,19 +294,19 @@ export function createTranslationService({
   };
   const startRun = async (state, socket, message) => {
     if (state.producer && state.producer !== socket) {
-      send(socket, { type: 'translation.error', version: 1, code: 'already_active', message: 'Another tab is already capturing this presentation.' });
+      send(socket, { type: 'translation.error', version: 1, ...failure('already_active', 'Another tab is already capturing this presentation.') });
       return;
     }
     if (state.run) return;
     if (!validTranslationConfig(message.config)) {
-      send(socket, { type: 'translation.error', version: 1, code: 'invalid_config', message: 'Choose a supported provider and an English/Spanish direction.' });
+      send(socket, { type: 'translation.error', version: 1, ...failure('invalid_config', 'Choose a supported provider and an English/Spanish direction.') });
       return;
     }
     const backendCapability = capabilities.backends[message.config.backend];
     const adapter = adapters[message.config.backend];
     if (!backendCapability?.configured || !adapter) {
       const missing = backendCapability?.missing?.join(', ') || 'provider configuration';
-      send(socket, { type: 'translation.error', version: 1, code: 'not_configured', message: `Set ${missing} in the project .env and restart ok-show.` });
+      send(socket, { type: 'translation.error', version: 1, ...failure('not_configured', `Set ${missing} in the project .env and restart ok-show.`) });
       return;
     }
     clearTimers(state);
@@ -308,19 +325,24 @@ export function createTranslationService({
       rateWindowAt: Date.now(),
       audioBytes: 0,
       droppedAudioChunks: 0,
+      totalDroppedAudioChunks: 0,
       lastAudioDropLogAt: 0,
+      recovery: message.recovery === true,
     };
     state.producer = socket;
+    const owner = clientMeta.get(socket);
+    state.producerClientId = owner?.clientId || '';
+    state.producerSurface = owner?.surface || '';
     state.run = run;
     status(state, 'connecting', { backend: message.config.backend });
-    log('connecting', { backend: message.config.backend, provider: backendProvider(message.config.backend), runId: run.id });
+    log('connecting', { backend: message.config.backend, provider: backendProvider(message.config.backend), runId: run.id, recovery: run.recovery });
     try {
       run.connection = await adapter.connect(message.config, (event) => publish(state, run, event), run.abort.signal);
       if (state.run !== run || run.abort.signal.aborted) {
         run.connection.close();
         return;
       }
-      log('connected', { backend: message.config.backend, runId: run.id, connectMs: Date.now() - run.startedAt });
+      log('connected', { backend: message.config.backend, runId: run.id, connectMs: Date.now() - run.startedAt, recovery: run.recovery });
       status(state, 'listening', {
         backend: message.config.backend,
         sampleRate: adapter.sampleRate,
@@ -355,6 +377,8 @@ export function createTranslationService({
           || !validTranslationId(message.sessionId, 64)
           || !validTranslationId(message.presentationId)
           || !validPresentationId(message.presentationId)
+          || (message.clientId !== undefined && !validTranslationId(message.clientId, 128))
+          || (message.surface !== undefined && !['deck', 'presenter'].includes(message.surface))
           || (controlToken && message.token !== controlToken)
           || (!controlToken && message.role === 'producer')) {
           return socket.close(1008, 'Invalid translation credentials or scope');
@@ -363,13 +387,14 @@ export function createTranslationService({
         clearTimeout(joinTimer);
         const role = message.role === 'producer' ? 'producer' : 'viewer';
         const state = sessionFor(message.sessionId, message.presentationId);
-        clientMeta.set(socket, { state, role });
+        clientMeta.set(socket, { state, role, clientId: message.clientId || '', surface: message.surface || '' });
         state.clients.add(socket);
         send(socket, { type: 'translation.capabilities', version: 1, ...capabilities });
         send(socket, {
           type: 'translation.status', version: 1,
           sessionId: state.sessionId, presentationId: state.presentationId,
           phase: state.status, runId: state.run?.id,
+          ...(state.producerClientId ? { producerClientId: state.producerClientId, producerSurface: state.producerSurface } : {}),
         });
         if (state.latest) send(socket, state.latest);
         return;
@@ -379,12 +404,13 @@ export function createTranslationService({
       if (message.version !== 1) return socket.close(1008, 'Unsupported translation protocol version');
       const { state, role } = meta;
       if (message.type === 'translation.clear') {
-        if (role !== 'producer') return send(socket, { type: 'translation.error', version: 1, code: 'forbidden', message: 'Viewer connections cannot clear captions.' });
+        if (role !== 'producer') return send(socket, { type: 'translation.error', version: 1, ...failure('forbidden', 'Viewer connections cannot clear captions.') });
+        if (state.producer && state.producer !== socket) return send(socket, { type: 'translation.error', version: 1, ...failure('forbidden', 'Only the microphone owner can clear live captions.') });
         clearCaption(state);
         return;
       }
       if (message.type === 'translation.start') {
-        if (role !== 'producer') return send(socket, { type: 'translation.error', version: 1, code: 'forbidden', message: 'Viewer connections cannot start capture.' });
+        if (role !== 'producer') return send(socket, { type: 'translation.error', version: 1, ...failure('forbidden', 'Viewer connections cannot start capture.') });
         void startRun(state, socket, message);
         return;
       }
@@ -401,7 +427,7 @@ export function createTranslationService({
       if (now - run.rateWindowAt >= 1_000) { run.rateWindowAt = now; run.audioBytes = 0; }
       run.audioBytes += audio.length;
       if (run.audioBytes > run.adapter.sampleRate * 2 * MAX_AUDIO_SECONDS) {
-        noteAudioDrop(run, 'ingress_backpressure');
+        noteAudioDrop(state, run, 'ingress_backpressure');
         return;
       }
       if (!run.firstAudioAt) {
@@ -409,9 +435,9 @@ export function createTranslationService({
         log('first_audio', { backend: run.config.backend, runId: run.id, elapsedMs: now - run.startedAt });
       }
       try {
-        if (run.connection.sendAudio(audio) === false) noteAudioDrop(run, 'provider_backpressure');
+        if (run.connection.sendAudio(audio) === false) noteAudioDrop(state, run, 'provider_backpressure');
       } catch (error) {
-        if (error?.code === 'queue_pressure') noteAudioDrop(run, 'provider_backpressure');
+        if (error?.code === 'queue_pressure') noteAudioDrop(state, run, 'provider_backpressure');
         else void failRun(state, run, error);
       }
     });
@@ -424,7 +450,7 @@ export function createTranslationService({
       if (meta.state.producer === socket && meta.state.run) {
         const run = meta.state.run;
         teardownRun(meta.state, run);
-        status(meta.state, 'error', { code: 'producer_disconnected', message: 'The microphone tab disconnected.' });
+        status(meta.state, 'error', failure('producer_disconnected', 'The microphone tab disconnected.'));
         clearCaption(meta.state, 'producer_disconnected');
         // Existing viewers learn that the producer dropped, while a returning
         // producer joins a restartable idle session instead of inheriting the

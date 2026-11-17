@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useLiveTranslation } from './useLiveTranslation';
+import { translationRetryDelay, useLiveTranslation } from './useLiveTranslation';
 
 const mocks = vi.hoisted(() => ({
   captureStart: vi.fn(async () => undefined),
@@ -75,6 +75,12 @@ const status = (phase: string, values: object = {}) => ({
 });
 
 describe('useLiveTranslation continuity', () => {
+  it('uses capped jittered retry delays', () => {
+    expect(translationRetryDelay(0, () => 0)).toBe(375);
+    expect(translationRetryDelay(0, () => 1)).toBe(625);
+    expect(translationRetryDelay(20, () => 0.5)).toBe(4000);
+  });
+
   beforeEach(() => {
     vi.useFakeTimers();
     FakeWebSocket.instances = [];
@@ -111,13 +117,13 @@ describe('useLiveTranslation continuity', () => {
       first.message(status('listening', { runId: 'run-1' }));
       first.message({ type: 'translation.ready', version: 1, sessionId: 'default', presentationId: 'demo', runId: 'run-1', sampleRate: 24000, chunkDurationMs: 200 });
     });
-    expect(result.current.phase).toBe('listening');
+    expect(result.current.phase).toBe('live');
     expect(mocks.captureStart).toHaveBeenCalledTimes(1);
 
     act(() => first.close());
-    expect(result.current.phase).toBe('connecting');
+    expect(result.current.phase).toBe('recovering');
     expect(mocks.captureStop).not.toHaveBeenCalled();
-    await act(async () => vi.advanceTimersByTimeAsync(500));
+    await act(async () => vi.advanceTimersByTimeAsync(1_000));
     const second = FakeWebSocket.instances[1];
     act(() => {
       second.open();
@@ -129,15 +135,26 @@ describe('useLiveTranslation continuity', () => {
       second.message(status('listening', { runId: 'run-2' }));
       second.message({ type: 'translation.ready', version: 1, sessionId: 'default', presentationId: 'demo', runId: 'run-2', sampleRate: 24000, chunkDurationMs: 200 });
     });
-    expect(result.current.phase).toBe('listening');
+    expect(result.current.phase).toBe('live');
 
     const startsBeforeFailure = second.sent.filter((message) => 'type' in message && message.type === 'translation.start').length;
     act(() => second.message(status('error', { runId: 'run-2', code: 'provider_error', message: 'Temporary provider failure.' })));
-    expect(result.current.phase).toBe('connecting');
+    expect(result.current.phase).toBe('recovering');
     expect(result.current.error).toBe('');
     expect(mocks.captureStop).not.toHaveBeenCalled();
-    await act(async () => vi.advanceTimersByTimeAsync(500));
+    await act(async () => vi.advanceTimersByTimeAsync(1_000));
     expect(second.sent.filter((message) => 'type' in message && message.type === 'translation.start')).toHaveLength(startsBeforeFailure + 1);
+
+    act(() => {
+      second.message(status('listening', { runId: 'run-3' }));
+      second.message({ type: 'translation.ready', version: 1, sessionId: 'default', presentationId: 'demo', runId: 'run-3', sampleRate: 24000, chunkDurationMs: 200 });
+      second.message({ type: 'translation.caption', version: 1, sessionId: 'default', presentationId: 'demo', runId: 'run-3', sequence: 1, translatedText: 'Recovered', targetLanguage: 'es', stability: 'streaming' });
+    });
+    await act(async () => vi.advanceTimersByTimeAsync(10_000));
+    const startsAfterHealthyRun = second.sent.filter((message) => 'type' in message && message.type === 'translation.start').length;
+    act(() => second.message(status('error', { runId: 'run-3', code: 'provider_error', message: 'Another temporary failure.' })));
+    await act(async () => vi.advanceTimersByTimeAsync(625));
+    expect(second.sent.filter((message) => 'type' in message && message.type === 'translation.start')).toHaveLength(startsAfterHealthyRun + 1);
 
     unmount();
   });

@@ -463,6 +463,13 @@ recoverable: fix browser access and press Start again. Native translation
 endpoints can generate and bill for audio even though ok-show discards all
 translated audio and plays none.
 
+For a trusted phone-accessible development URL on a connected Tailscale
+machine, run `npm run dev -- --https`. ok-show obtains the machine's MagicDNS
+certificate into the project's git-ignored `.tmp/tailscale-https/` directory
+and prints tokenized `https://<machine>.<tailnet>.ts.net:<port>` deck and
+presenter links. Tailscale MagicDNS and HTTPS must already be enabled; set
+`TAILSCALE_CLI` only when the CLI is in a nonstandard location.
+
 Live translation exists only in the authoring runtime (`ok-show dev`, with
 the same service available through `ok-show sync`). Static `ok-show build`,
 PDF export, and the public presentation do not contain controls, captions,

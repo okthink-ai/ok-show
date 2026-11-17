@@ -7,12 +7,15 @@ test('captures through the translation service and shares captions with the pres
   const panel = page.getByRole('region', { name: 'Live translation' });
   await expect(panel.getByRole('button', { name: 'Start microphone' })).toBeEnabled();
   await panel.getByRole('button', { name: 'Start microphone' }).click();
-  await expect(panel.getByText('listening', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Live', { exact: true })).toBeVisible();
+  await expect(panel.getByText(/This deck owns the microphone/)).toBeVisible();
   await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toContainText('Deterministic translated caption');
 
   const presenter = await context.newPage();
   await presenter.goto('/notes?session=captions&token=test-token');
   const presenterPanel = presenter.getByRole('region', { name: 'Live translation' });
+  await expect(presenterPanel.getByText('Live from Deck')).toBeVisible();
+  await expect(presenterPanel.getByRole('button', { name: 'Running remotely' })).toBeDisabled();
   await expect(presenterPanel.locator('.live-caption-overlay')).toContainText('Deterministic translated caption');
 
   await page.keyboard.press('f');
@@ -24,7 +27,7 @@ test('captures through the translation service and shares captions with the pres
   await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toBeVisible();
 
   await panel.getByRole('button', { name: 'Stop' }).click();
-  await expect(panel.getByText('idle', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Off', { exact: true })).toBeVisible();
   await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toBeVisible();
   await panel.getByRole('button', { name: 'Clear' }).click();
   await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toHaveCount(0);

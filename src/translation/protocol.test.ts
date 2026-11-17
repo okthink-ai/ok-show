@@ -21,4 +21,12 @@ describe('translation browser protocol', () => {
     expect(bounded).not.toContain('\ud83d\u0000');
     expect([...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(bounded)].every((item) => item.segment === family)).toBe(true);
   });
+
+  it('requires failure dispositions and accepts bounded health diagnostics', () => {
+    const failure = { type: 'translation.error', version: 1, code: 'provider_timeout', message: 'Retrying.', disposition: 'retryable' };
+    expect(parseTranslationServerMessage(JSON.stringify(failure))).toEqual(failure);
+    expect(parseTranslationServerMessage(JSON.stringify({ ...failure, disposition: undefined }))).toBeNull();
+    const health = { type: 'translation.health', version: 1, sessionId: 'one', presentationId: 'demo', runId: 'run', droppedAudioChunks: 3 };
+    expect(parseTranslationServerMessage(JSON.stringify(health))).toEqual(health);
+  });
 });

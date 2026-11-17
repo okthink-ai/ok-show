@@ -17,6 +17,7 @@ import { createSyncServer } from '../server/sync-server.mjs';
 import { INIT_HELP, init } from './init.mjs';
 import { ENGINE_ROOT, loadProject } from './project.mjs';
 import { applyProjectTranslationEnv } from './project-env.mjs';
+import { prepareTailscaleHttps } from './tailscale-https.mjs';
 
 const ENGINE_VITE_CONFIG = join(ENGINE_ROOT, 'vite.config.ts');
 const DEFAULT_SYNC_PORT = 5200;
@@ -47,6 +48,7 @@ Options:
   --host [host]      dev/preview: listen on all addresses, or on <host>
   --port <port>      dev/preview: port, which must be free (default: 5199 or
                      the next free port for dev, 4173 for preview)
+  --https            dev: use this machine's trusted Tailscale HTTPS certificate
 
 Environment:
   SYNC_PORT           Internal notes-service port (default: first free from 5200)
@@ -61,7 +63,7 @@ const TOOL_OPTIONS = ['--root', '--config'];
 /** The options each command reads. Passthrough commands forward everything else. */
 const COMMAND_OPTIONS = {
   init: new Set(['--deck', '--title', '--engine', '--install', '--force']),
-  dev: new Set(SERVER_OPTIONS),
+  dev: new Set([...SERVER_OPTIONS, '--https']),
   build: new Set(PROJECT_OPTIONS),
   preview: new Set(SERVER_OPTIONS),
   sync: new Set(PROJECT_OPTIONS),
@@ -72,7 +74,7 @@ const COMMAND_OPTIONS = {
   help: new Set(),
 };
 /** Options that take no value. `--host` takes an optional one. */
-const FLAGS = new Set(['--install', '--force']);
+const FLAGS = new Set(['--install', '--force', '--https']);
 
 /**
  * Split argv into a command, its own options, and (for passthrough commands)
@@ -217,6 +219,7 @@ function onShutdown(close) {
 }
 
 async function dev(project, options) {
+  const tailscaleHttps = options.https ? prepareTailscaleHttps(project.root) : null;
   const sync = await startSyncServer(project);
   setViteEnvironment(project, { SYNC_PORT: String(sync.syncPort), VITE_ENABLE_DEBUG_CLI: 'true' });
   const tokenFile = controlTokenFile(project.root);
@@ -231,6 +234,10 @@ async function dev(project, options) {
       server: {
         ...(options.host !== undefined ? { host: options.host } : {}),
         ...(options.port !== undefined ? { port: options.port, strictPort: true } : {}),
+        ...(tailscaleHttps ? {
+          https: { key: tailscaleHttps.key, cert: tailscaleHttps.cert },
+          allowedHosts: ['.ts.net'],
+        } : {}),
       },
     });
     await server.listen();
@@ -251,14 +258,16 @@ async function dev(project, options) {
   });
 
   const { local = [], network = [] } = server.resolvedUrls ?? {};
-  const localUrl = local[0] ?? `http://localhost:${server.config.server.port}/`;
+  const localUrl = tailscaleHttps
+    ? `https://${tailscaleHttps.hostname}:${server.config.server.port}/`
+    : local[0] ?? `http://localhost:${server.config.server.port}/`;
   // The token never goes into the page bundle. Local tools such as the debug CLI
   // read it from this git-ignored file; browsers get it from the printed links.
   writeControlTokenFile(sync.controlToken, tokenFile);
   writeDevServerFile({ appUrl: localUrl.replace(/\/+$/, ''), syncUrl: `http://127.0.0.1:${sync.syncPort}`, pid: process.pid }, stateFile);
 
-  const links = controlLinks({ localUrl, networkUrls: network, token: sync.controlToken });
-  server.printUrls();
+  const links = controlLinks({ localUrl, networkUrls: tailscaleHttps ? [] : network, token: sync.controlToken });
+  if (!tailscaleHttps) server.printUrls();
   console.log(`\n  Project   ${project.root}`);
   console.log(`  Decks     ${project.paths.presentationsDir}/`);
   console.log(`  Notes     speaker notes through /speaker-sync (internal port ${sync.syncPort})`);

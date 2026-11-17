@@ -1,6 +1,8 @@
 export type TranslationBackend = 'openai-realtime' | 'elevenlabs-scribe' | 'elevenlabs-realtime';
 export type TranslationLanguage = 'en' | 'es';
 export type TranslationPhase = 'idle' | 'connecting' | 'listening' | 'stopping' | 'error';
+export type LiveTranslationPhase = 'off' | 'starting' | 'live' | 'recovering' | 'blocked' | 'stopping';
+export type TranslationFailureDisposition = 'degraded' | 'retryable' | 'blocked';
 
 export interface TranslationConfig {
   backend: TranslationBackend;
@@ -38,12 +40,13 @@ export interface CaptionSnapshot {
 
 export type TranslationServerMessage =
   | ({ type: 'translation.capabilities' } & TranslationCapabilities)
-  | { type: 'translation.status'; version: 1; sessionId: string; presentationId: string; phase: TranslationPhase; runId?: string; backend?: TranslationBackend; code?: string; message?: string }
+  | { type: 'translation.status'; version: 1; sessionId: string; presentationId: string; phase: TranslationPhase; runId?: string; backend?: TranslationBackend; code?: string; message?: string; disposition?: TranslationFailureDisposition; producerClientId?: string; producerSurface?: 'deck' | 'presenter' }
   | { type: 'translation.ready'; version: 1; sessionId: string; presentationId: string; runId: string; sampleRate: 16000 | 24000; chunkDurationMs: 100 | 200 }
   | CaptionSnapshot
   | { type: 'translation.cleared'; version: 1; sessionId: string; presentationId: string; reason: string }
   | { type: 'translation.warning'; version: 1; sessionId: string; presentationId: string; runId: string; code: string; message: string }
-  | { type: 'translation.error'; version: 1; code: string; message: string };
+  | { type: 'translation.health'; version: 1; sessionId: string; presentationId: string; runId: string; droppedAudioChunks: number }
+  | { type: 'translation.error'; version: 1; code: string; message: string; disposition: TranslationFailureDisposition };
 
 const backends: TranslationBackend[] = ['openai-realtime', 'elevenlabs-scribe', 'elevenlabs-realtime'];
 const languages: TranslationLanguage[] = ['en', 'es'];
@@ -77,7 +80,8 @@ export function parseTranslationServerMessage(raw: string): TranslationServerMes
     return message as unknown as TranslationServerMessage;
   }
   if (message.type === 'translation.error') {
-    return typeof message.code === 'string' && typeof message.message === 'string' ? message as unknown as TranslationServerMessage : null;
+    return typeof message.code === 'string' && typeof message.message === 'string'
+      && ['degraded', 'retryable', 'blocked'].includes(String(message.disposition)) ? message as unknown as TranslationServerMessage : null;
   }
   if (typeof message.sessionId !== 'string' || typeof message.presentationId !== 'string') return null;
   if (message.type === 'translation.status') {
@@ -99,6 +103,11 @@ export function parseTranslationServerMessage(raw: string): TranslationServerMes
   if (message.type === 'translation.cleared') return typeof message.reason === 'string' ? message as unknown as TranslationServerMessage : null;
   if (message.type === 'translation.warning') {
     return typeof message.runId === 'string' && typeof message.code === 'string' && typeof message.message === 'string'
+      ? message as unknown as TranslationServerMessage : null;
+  }
+  if (message.type === 'translation.health') {
+    return typeof message.runId === 'string' && typeof message.droppedAudioChunks === 'number'
+      && Number.isInteger(message.droppedAudioChunks) && message.droppedAudioChunks >= 0
       ? message as unknown as TranslationServerMessage : null;
   }
   return null;
