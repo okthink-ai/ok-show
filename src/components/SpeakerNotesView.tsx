@@ -9,6 +9,7 @@ import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { useAnnotationActions } from '../hooks/useAnnotationActions';
 import { useInspectorMode } from '../hooks/useInspectorMode';
 import { usePresentationSync } from '../sync/usePresentationSync';
+import { useLiveTranslation } from '../hooks/useLiveTranslation';
 import type { SlideData } from '../types/slide.types';
 import Slide from './Slide';
 import MaterialIcon from './MaterialIcon';
@@ -18,6 +19,7 @@ import DebugProfiler from '../debug/DebugProfiler';
 import TalkPracticeReader from './TalkPracticeReader';
 import PracticeAnnotationsPanel from './PracticeAnnotationsPanel';
 import PendingAnnotationPopup from './PendingAnnotationPopup';
+import LiveTranslationPanel from './LiveTranslationPanel';
 import type { PracticePosition } from '../practice/slideCues';
 import './SpeakerNotesView.css';
 
@@ -97,6 +99,7 @@ export default function SpeakerNotesView() {
   const current = slides[safeSlide];
   const next = slides[safeSlide + 1];
   const { status, error, notes, notesLoaded } = usePresentationSync({ dispatch, presentationId: presentation?.id ?? '', slideIndex: safeSlide, totalSlides: slides.length, theme, role: 'notes', canNavigate: true });
+  const liveTranslation = useLiveTranslation({ presentationId: presentation?.id ?? '', surface: 'presenter' });
   const notesRef = useRef<HTMLElement>(null);
   const annotationCount = useAppSelector(state => state.annotations.annotations.filter(item => item.presentationId === presentation.id).length);
   const storedReadingMode = useAppSelector((state) => state.ui.presenterReadingMode);
@@ -200,6 +203,7 @@ export default function SpeakerNotesView() {
               <MaterialIcon name="settings" size="small" />
             </button>
           </div>
+          <LiveTranslationPanel runtime={liveTranslation} compact />
           {readingMode === 'annotations' ? <PracticeAnnotationsPanel presentationId={presentation.id} slides={slides} onClose={() => setReadingMode('practice')} onSlideChange={connected ? goTo : undefined} /> : readingMode === 'practice' && hasManuscript(presentation.id) ? (
             <DebugProfiler id="PracticeReader"><TalkPracticeReader presentationId={presentation.id} slides={slides} currentSlide={safeSlide}
               canNavigate={connected} onSlideChange={(index) => dispatch(goToSlide({ index, totalSlides: slides.length }))}

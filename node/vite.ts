@@ -226,6 +226,10 @@ export function createViteConfig(project: ResolvedProject, _env: ConfigEnv, { sy
           target: `ws://127.0.0.1:${syncPort}`,
           ws: true,
         },
+        '/translation-sync': {
+          target: `ws://127.0.0.1:${syncPort}`,
+          ws: true,
+        },
       },
     },
     preview: {

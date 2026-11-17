@@ -16,6 +16,21 @@ test('the CLI serves the project decks with the project title', async ({ page })
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Fixture description');
 });
 
+test('an installed consumer resolves the translation AudioWorklet and service proxy', async ({ page }) => {
+  await page.goto('/?presentation=launch&session=consumer-captions&translationCapture=fake&token=test-token');
+  const worklet = await page.request.get('/src/translation/audio-capture-worklet.js');
+  expect(worklet.ok()).toBe(true);
+  expect(await worklet.text()).toContain("registerProcessor('ok-show-audio-capture'");
+  await page.getByRole('button', { name: 'Toggle developer tools' }).click();
+  await page.getByRole('button', { name: 'Live translation' }).click();
+  const panel = page.getByRole('region', { name: 'Live translation' });
+  await expect(panel.getByRole('button', { name: 'Start microphone' })).toBeEnabled();
+  await panel.getByRole('button', { name: 'Start microphone' }).click();
+  await expect(page.locator('.live-caption-overlay:not(.live-caption-overlay--preview)')).toContainText('Deterministic translated caption');
+  await panel.getByRole('button', { name: 'Stop' }).click();
+  await expect(panel.getByText('Off', { exact: true })).toBeVisible();
+});
+
 test('project styles override the engine design tokens', async ({ page }) => {
   await page.goto('/?presentation=launch&slide=2&token=test-token');
   await expect(page.locator('.slide--active .quote-slide')).toBeVisible();

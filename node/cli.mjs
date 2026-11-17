@@ -16,6 +16,7 @@ import { NOTE_FILES, loadAllPresentationNotes, loadPresentationNotes } from '../
 import { createSyncServer } from '../server/sync-server.mjs';
 import { INIT_HELP, init } from './init.mjs';
 import { ENGINE_ROOT, loadProject } from './project.mjs';
+import { applyProjectTranslationEnv } from './project-env.mjs';
 
 const ENGINE_VITE_CONFIG = join(ENGINE_ROOT, 'vite.config.ts');
 const DEFAULT_SYNC_PORT = 5200;
@@ -156,13 +157,14 @@ function setViteEnvironment(project, extra = {}) {
 async function startSyncServer(project, { port, log = console.log } = {}) {
   const syncPort = port ?? (process.env.SYNC_PORT ? Number(process.env.SYNC_PORT) : await findFreePort(DEFAULT_SYNC_PORT));
   const controlToken = process.env.SYNC_CONTROL_TOKEN || randomBytes(24).toString('hex');
-  const { notesByPresentation, sparkleByPresentation } = await loadAllPresentationNotes({ directory: project.presentationsDir });
+  const { notesByPresentation, sparkleByPresentation, presentationIds } = await loadAllPresentationNotes({ directory: project.presentationsDir });
   const syncServer = createSyncServer({
     port: syncPort,
     controlToken,
     stateFile: process.env.SYNC_STATE_FILE || join(project.root, '.speaker-sync/state.json'),
     notesByPresentation,
     sparkleByPresentation,
+    presentationIds,
   });
   await syncServer.listen();
 
@@ -354,6 +356,9 @@ export async function main(argv = process.argv.slice(2)) {
     command: command === 'build' ? 'build' : 'serve',
     mode: options.mode ?? (command === 'build' || command === 'preview' ? 'production' : 'development'),
   });
+  if (command === 'dev' || command === 'sync') {
+    applyProjectTranslationEnv({ root: project.root, mode: options.mode ?? 'development' });
+  }
 
   switch (command) {
     case 'dev': await dev(project, options); return undefined;

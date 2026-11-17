@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { WebSocket, WebSocketServer } from 'ws';
 import { THEME_IDS } from '../src/themeRegistry.js';
 import { createSessionStore, persistSessions } from './session-store.mjs';
+import { createTranslationService, translationConfigFromEnv } from './translation-service.mjs';
 
 const MAX_MESSAGE_BYTES = 16 * 1024;
 const MAX_MESSAGES_PER_SECOND = 30;
@@ -56,6 +57,11 @@ export function createSyncServer({
   persist = persistSessions,
   notesByPresentation = {},
   sparkleByPresentation = {},
+  presentationIds = Object.keys(notesByPresentation),
+  translationConfig = translationConfigFromEnv(),
+  translationAdapters,
+  translationLog,
+  translationServiceOptions = {},
 } = {}) {
   notesByPresentation = { ...notesByPresentation };
   sparkleByPresentation = { ...sparkleByPresentation };
@@ -107,6 +113,15 @@ export function createSyncServer({
     response.writeHead(404).end();
   });
   const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE_BYTES });
+  const knownPresentations = new Set(presentationIds);
+  const translationService = createTranslationService({
+    ...translationServiceOptions,
+    controlToken,
+    config: translationConfig,
+    ...(translationAdapters ? { adapters: translationAdapters } : {}),
+    ...(translationLog ? { log: translationLog } : {}),
+    validPresentationId: (presentationId) => knownPresentations.size === 0 || knownPresentations.has(presentationId),
+  });
 
   httpServer.on('upgrade', (request, socket, head) => {
     const origin = request.headers.origin;
@@ -115,12 +130,25 @@ export function createSyncServer({
       socket.destroy();
       return;
     }
-    if (wss.clients.size >= maxConnections) {
+    if (wss.clients.size + translationService.wss.clients.size >= maxConnections) {
       socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
       socket.destroy();
       return;
     }
-    wss.handleUpgrade(request, socket, head, (ws) => wss.emit('connection', ws, request));
+    let pathname;
+    try { pathname = new URL(request.url || '/', 'http://localhost').pathname; } catch { pathname = ''; }
+    if (pathname === '/translation-sync') {
+      translationService.handleUpgrade(request, socket, head);
+      return;
+    }
+    // Root remains a direct-server compatibility path for existing clients and
+    // tests. Vite and public consumers use the explicit speaker path.
+    if (pathname === '/' || pathname === '/speaker-sync') {
+      wss.handleUpgrade(request, socket, head, (ws) => wss.emit('connection', ws, request));
+      return;
+    }
+    socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
+    socket.destroy();
   });
 
   const sendState = (socket, sessionId) => socket.send(JSON.stringify({ type: 'state', sessionId, state: getState(sessionId) }));
@@ -232,6 +260,7 @@ export function createSyncServer({
       clearInterval(heartbeat);
       clearInterval(sessionCleanup);
       for (const socket of wss.clients) socket.terminate();
+      await translationService.close();
       await store.waitForPersistence();
       await new Promise((resolveClose) => wss.close(() => httpServer.close(resolveClose)));
     },

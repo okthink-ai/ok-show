@@ -28,6 +28,7 @@ export async function loadPresentationNotes(presentationId, { directory, version
 /** Load every deck that has a `notes.mjs`. */
 export async function loadAllPresentationNotes({ directory }) {
   const entries = await readdir(directory, { withFileTypes: true });
+  const presentationIds = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   const notesByPresentation = {};
   const sparkleByPresentation = {};
   await Promise.all(entries.filter((entry) => entry.isDirectory()).map(async ({ name }) => {
@@ -36,5 +37,5 @@ export async function loadAllPresentationNotes({ directory }) {
     notesByPresentation[name] = notes;
     if (sparkle) sparkleByPresentation[name] = sparkle;
   }));
-  return { notesByPresentation, sparkleByPresentation };
+  return { notesByPresentation, sparkleByPresentation, presentationIds };
 }

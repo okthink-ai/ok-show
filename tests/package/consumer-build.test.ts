@@ -46,6 +46,17 @@ describe('a project that installs ok-show', () => {
     expect(bundle).not.toContain('FIXTURE-PRIVATE-NOTE');
     expect(bundle).not.toContain('Fixture manuscript opening line.');
     expect(bundle).not.toContain('__OK_SHOW_DEBUG__');
+    expect(bundle).not.toContain('/translation-sync');
+    expect(bundle).not.toContain('Live translation');
+    expect(bundle).not.toContain('OPENAI_API_KEY');
+    expect(bundle).not.toContain('ELEVENLABS_API_KEY');
+  });
+
+  it('packages the AudioWorklet used by installed consumer dev servers', () => {
+    expect(existsSync(join(ENGINE, 'src/translation/audio-capture-worklet.js'))).toBe(true);
+    const packageJson = JSON.parse(readFileSync(join(ENGINE, 'package.json'), 'utf8'));
+    expect(packageJson.files).toContain('src');
+    expect(packageJson.files).toContain('.env.example');
   });
 
   it('ships the project public files and fills the gaps from the engine', () => {

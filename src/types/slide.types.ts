@@ -55,6 +55,8 @@ export interface SlideContainerProps {
   aspectRatio: AspectRatio;
   currentSlide: number;
   onSlideChange: (index: number) => void;
+  /** Runtime chrome layered over the stage, outside authored slide content. */
+  overlay?: React.ReactNode;
 }
 
 export interface SlideProps {

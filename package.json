@@ -33,6 +33,7 @@
     "debug-cli",
     "src",
     "public",
+    ".env.example",
     "index.html",
     "vite.config.ts",
     "!**/*.test.*",

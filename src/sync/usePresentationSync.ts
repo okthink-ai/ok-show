@@ -68,7 +68,7 @@ export function isPresentationSyncRequested(
   return new URLSearchParams(location.search).has('session') || Boolean(configuredUrl);
 }
 
-function getControlToken(location: Location = window.location): string {
+export function getControlToken(location: Location = window.location): string {
   const params = new URLSearchParams(location.search);
   const fromUrl = params.get('token');
   if (fromUrl) {

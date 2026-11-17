@@ -12,6 +12,7 @@ const SlideContainer: FC<SlideContainerProps> = ({
   aspectRatio,
   currentSlide,
   onSlideChange,
+  overlay,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const slidesContainerRef = useRef<HTMLDivElement>(null);
@@ -213,6 +214,7 @@ const SlideContainer: FC<SlideContainerProps> = ({
           totalSlides={slides.length}
         />
       </div>
+      {overlay}
     </div>
     {/* A sibling, so a tap that dismisses the hint is not also a slide tap. */}
     <NavigationHint isFirstSlide={currentSlide === 0} />

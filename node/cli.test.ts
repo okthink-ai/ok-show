@@ -20,6 +20,7 @@ describe('parseCliArgs', () => {
   it('rejects bad input with a pointer to help', () => {
     expect(() => parseCliArgs(['serve'])).toThrow('Unknown command "serve"');
     expect(() => parseCliArgs(['dev', '--open'])).toThrow('Unknown option "--open" for dev');
+    expect(() => parseCliArgs(['dev', '--https'])).toThrow('Unknown option "--https" for dev');
     expect(() => parseCliArgs(['dev', '--port', 'abc'])).toThrow('--port must be a port number');
     expect(() => parseCliArgs(['dev', '--port', '70000'])).toThrow('--port must be a port number');
     expect(() => parseCliArgs(['dev', '--root'])).toThrow('--root needs a value');

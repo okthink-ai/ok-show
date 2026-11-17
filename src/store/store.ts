@@ -2,6 +2,7 @@ import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
 import uiReducer, {
   PRACTICE_TEXT_SIZE_KEY, PRESENTER_MODE_KEY, PRESENTER_NEXT_KEY, PRESENTER_PRESENTING_KEY,
   PRESENTER_TALK_MINUTES_KEY, NAV_HINT_SEEN_KEY, PRESENTER_TIMER_KEY, SIDEBAR_STORAGE_KEY, THEME_STORAGE_KEY, DRAWER_WIDTH_KEY,
+  TRANSLATION_PREFERENCES_KEY,
 } from './uiSlice';
 import presentationReducer from './presentationSlice';
 import annotationsReducer, { ANNOTATIONS_KEY, MODE_KEY, PENDING_ANNOTATION_KEY, replaceAnnotations } from './annotationsSlice';
@@ -30,6 +31,7 @@ registerPersistence<RootState>(listenerMiddleware, [
   persistedField<RootState, string>({ key: THEME_STORAGE_KEY, select: s => s.ui.theme, serialize: str }),
   persistedField<RootState, boolean>({ key: NAV_HINT_SEEN_KEY, select: s => s.ui.navHintSeen, serialize: str }),
   persistedField<RootState, number>({ key: DRAWER_WIDTH_KEY, select: s => s.ui.drawerWidth, serialize: str }),
+  persistedField<RootState, unknown>({ key: TRANSLATION_PREFERENCES_KEY, select: s => s.ui.translation, serialize: json }),
   persistedField<RootState, string | null>({
     key: SIDEBAR_STORAGE_KEY,
     // Select a primitive pair so the listener fires only when one changes.

@@ -18,7 +18,7 @@ const STARTER_FILES = join(ENGINE_ROOT, 'node/init');
 const STYLES_FILE = 'src/styles/brand.css';
 const GITIGNORE = ['node_modules', 'dist', '.tmp', '.speaker-sync', '.env', '*.local'];
 /** Files merged into, rather than refused, when they already exist. */
-const MERGED = new Set(['package.json', '.gitignore']);
+const MERGED = new Set(['package.json', '.gitignore', '.env.example']);
 const DECK_ID = /^[a-z0-9][a-z0-9-]*$/;
 
 const toPosix = (path) => path.split(sep).join('/');
@@ -230,6 +230,7 @@ export function planInit({ targetDir, deckId, title, engineSpec, date = new Date
     existing: parsedPackage,
   }), null, 2)}\n`);
   files.set('.gitignore', gitignore(readExisting('.gitignore')));
+  files.set('.env.example', readExisting('.env.example') ?? readEngine('.env.example'));
   files.set('ok-show.config.ts', configFile(deckTitle));
   files.set('tsconfig.json', TSCONFIG);
   for (const name of ['README.md', 'AGENTS.md']) {

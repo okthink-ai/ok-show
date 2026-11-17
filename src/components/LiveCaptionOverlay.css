@@ -1,0 +1,52 @@
+.live-caption-overlay {
+  position: absolute;
+  z-index: 30;
+  inset-inline: max(4vw, env(safe-area-inset-left)) max(4vw, env(safe-area-inset-right));
+  bottom: max(8vh, calc(env(safe-area-inset-bottom) + 28px));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.live-caption-overlay p {
+  box-sizing: border-box;
+  inline-size: min(24em, 100%);
+  max-inline-size: 24em;
+  margin: 0;
+  padding: 0.35em 0.6em;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 28%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: clamp(24px, calc(var(--caption-font-size) * 0.84), 56px);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: wrap;
+}
+
+.live-caption-overlay__text {
+  display: block;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.live-caption-overlay__word { display: inline; }
+.live-caption-overlay__word--new { display: inline-block; animation: live-caption-word-in 180ms ease-out both; animation-delay: calc(var(--caption-word-order, 0) * 38ms); }
+@keyframes live-caption-word-in { from { opacity: 0; transform: translateY(.22em); } }
+
+.live-caption-overlay[data-stability='streaming'] p { border-color: var(--color-accent); }
+.live-caption-overlay--preview { position: static; z-index: auto; inline-size: 100%; justify-content: flex-start; }
+.live-caption-overlay--preview p { inline-size: 100%; max-inline-size: none; font-size: 16px; text-align: start; }
+.live-caption-overlay__sr { position: absolute; inline-size: 1px; block-size: 1px; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 767px) {
+  .live-caption-overlay { bottom: max(6vh, calc(env(safe-area-inset-bottom) + 20px)); }
+  .live-caption-overlay p { font-size: clamp(20px, calc(var(--caption-font-size) * 0.65), 40px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-caption-overlay__word--new { animation: none; }
+}
