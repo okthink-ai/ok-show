@@ -48,18 +48,23 @@ const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact 
     const timer = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(timer);
   }, [active]);
-  const freshness = runtime.health.lastCaptionAt
+  const freshness = (active || runtime.caption) && runtime.health.lastCaptionAt
     ? `Last caption ${Math.max(0, Math.floor((now - runtime.health.lastCaptionAt) / 1_000))}s ago`
     : active ? 'Waiting for speech' : '';
   const owner = runtime.ownership === 'local' ? `This ${runtime.ownerSurface || 'device'} owns the microphone`
     : runtime.ownership === 'remote' ? `Live from ${runtime.ownerSurface === 'presenter' ? 'Presenter' : 'Deck'}` : '';
+  const compactStatus = runtime.phase === 'live'
+    ? runtime.ownership === 'remote' ? `Live from ${runtime.ownerSurface === 'presenter' ? 'Presenter' : 'Deck'}` : 'Recording'
+    : runtime.phase === 'off' ? 'Not recording'
+      : runtime.phase === 'blocked' ? 'Needs attention' : PHASE_LABELS[runtime.phase];
 
-  return (
+  const panel = (
     <section className={`live-translation-panel${compact ? ' live-translation-panel--compact' : ''}`} aria-label="Live translation">
-      <header>
+      {!compact && <header>
         <div><h2>Live translation</h2><p data-phase={runtime.phase}>{PHASE_LABELS[runtime.phase]}</p></div>
         <label className="live-translation-panel__visibility"><input type="checkbox" checked={preferences.captionsVisible} onChange={(event) => dispatch(setCaptionsVisible(event.target.checked))} /> Show</label>
-      </header>
+      </header>}
+      {compact && <label className="live-translation-panel__visibility"><input type="checkbox" checked={preferences.captionsVisible} onChange={(event) => dispatch(setCaptionsVisible(event.target.checked))} /> Show captions</label>}
       <div className="live-translation-panel__fields">
         <label>
           <span>Provider</span>
@@ -98,11 +103,22 @@ const LiveTranslationPanel: FC<LiveTranslationPanelProps> = ({ runtime, compact 
       {runtime.caption ? (
         <div className="live-translation-panel__preview">
           {runtime.caption.sourceText && <p><strong>Source</strong> {runtime.caption.sourceText}</p>}
-          <LiveCaptionOverlay caption={runtime.caption} visible fontSize={preferences.captionFontSize} preview />
+          <LiveCaptionOverlay caption={runtime.caption} visible fontSize={preferences.captionFontSize} preview condensed={compact} />
         </div>
       ) : <p className="live-translation-panel__empty">Translated captions will preview here.</p>}
       <p className="live-translation-panel__disclosure">Audio is sent directly to the selected provider while listening. Native translation may generate billable audio output; ok-show discards it.</p>
     </section>
+  );
+  if (!compact) return panel;
+  return (
+    <details className="live-translation-disclosure" data-phase={runtime.phase}>
+      <summary>
+        <span>Live translation</span>
+        <span className="live-translation-disclosure__status" aria-live="polite">{compactStatus}</span>
+        <span className="live-translation-disclosure__chevron" aria-hidden="true">›</span>
+      </summary>
+      {panel}
+    </details>
   );
 };
 

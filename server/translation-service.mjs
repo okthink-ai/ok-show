@@ -61,10 +61,18 @@ export function createFakeTranslationAdapter({ sampleRate = 24000, chunkDuration
         sendAudio() {
           if (closed) return;
           chunks += 1;
-          emit({ type: 'translation', text: `Deterministic translated caption ${chunks}`, stability: 'streaming' });
+          emit({
+            type: 'translation',
+            text: `Earlier translated context rolls away without changing the caption box height. New complete words enter smoothly while the latest two lines remain readable. Deterministic translated caption ${chunks}`,
+            stability: 'streaming',
+          });
         },
         async finish() {
-          emit({ type: 'translation', text: `Deterministic translated caption ${chunks}`, stability: 'settled' });
+          emit({
+            type: 'translation',
+            text: `Earlier translated context rolls away without changing the caption box height. New complete words enter smoothly while the latest two lines remain readable. Deterministic translated caption ${chunks}`,
+            stability: 'settled',
+          });
         },
         close() { closed = true; },
       };
