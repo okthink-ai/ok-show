@@ -5,9 +5,17 @@ export const TRANSLATION_BACKENDS = Object.freeze([
 ]);
 export const TRANSLATION_LANGUAGES = Object.freeze(['en', 'es']);
 export const TRANSLATION_WINDOW_CHARACTERS = 280;
-export const TRANSLATION_HISTORY_LIMIT = 40;
 
 const ID_PATTERN = /^[a-zA-Z0-9_-]{1,128}$/;
+const BLOCKED_FAILURES = new Set([
+  'already_active', 'forbidden', 'invalid_api_key', 'invalid_audio', 'invalid_config',
+  'not_configured', 'provider_access', 'quota_or_billing',
+]);
+
+export function translationFailureDisposition(code) {
+  if (code === 'finalization_timeout') return 'degraded';
+  return BLOCKED_FAILURES.has(code) ? 'blocked' : 'retryable';
+}
 
 export function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;

@@ -5,12 +5,10 @@ import { setTranslationBackend } from '../store/uiSlice';
 import { prepareAudioCapture, prepareDeterministicAudioCapture, RealtimeChunkPacer } from '../translation/audioCapture';
 import type { AudioCapture } from '../translation/audioCapture';
 import { parseTranslationServerMessage } from '../translation/protocol';
-import { translationFailureDisposition } from '../translation/failurePolicy.mjs';
-import type { CaptionSnapshot, LiveTranslationPhase, TranslationCapabilities, TranslationConfig } from '../translation/protocol';
+import type { CaptionSnapshot, LiveTranslationPhase, TranslationCapabilities, TranslationConfig, TranslationFailureDisposition } from '../translation/protocol';
 
 const RECONNECT_MIN_MS = 500;
 const RECONNECT_MAX_MS = 4000;
-const HISTORY_LIMIT = 40;
 const HEALTHY_RESET_MS = 10_000;
 const MAX_AUDIO_BACKLOG_MS = 500;
 const CLIENT_ID_KEY = 'ok-show-translation-client-id';
@@ -44,7 +42,6 @@ export interface LiveTranslationResult {
   connected: boolean;
   capabilities: TranslationCapabilities | null;
   caption: CaptionSnapshot | null;
-  history: CaptionSnapshot[];
   error: string;
   warning: string;
   ownership: 'none' | 'local' | 'remote';
@@ -60,11 +57,10 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
   const preferredBackend = useAppSelector((state) => state.ui.translation.backend);
   const preferenceRef = useRef(preferredBackend);
   preferenceRef.current = preferredBackend;
-  const [phase, setPhase] = useState<LiveTranslationPhase>('off');
+  const [phase, setPhaseState] = useState<LiveTranslationPhase>('off');
   const [connected, setConnected] = useState(false);
   const [capabilities, setCapabilities] = useState<TranslationCapabilities | null>(null);
   const [caption, setCaption] = useState<CaptionSnapshot | null>(null);
-  const [history, setHistory] = useState<CaptionSnapshot[]>([]);
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
   const [ownership, setOwnership] = useState<'none' | 'local' | 'remote'>('none');
@@ -76,16 +72,17 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
   const startupRef = useRef<AbortController | null>(null);
   const runIdRef = useRef('');
   const desiredConfigRef = useRef<TranslationConfig | null>(null);
-  const remoteStartPendingRef = useRef(false);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const restartAttemptRef = useRef(0);
   const healthyResetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const intentStartedAtRef = useRef(0);
   const clientIdRef = useRef('');
-  const blockedRef = useRef(false);
   const sequenceRef = useRef(-1);
   const phaseRef = useRef<LiveTranslationPhase>('off');
-  phaseRef.current = phase;
+  const setPhase = useCallback((next: LiveTranslationPhase) => {
+    phaseRef.current = next;
+    setPhaseState(next);
+  }, []);
 
   const stopCapture = useCallback(async (flush = false) => {
     const capture = captureRef.current;
@@ -113,15 +110,45 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
       restartTimerRef.current = undefined;
       const config = desiredConfigRef.current;
       const socket = socketRef.current;
-      if (!config || remoteStartPendingRef.current || socket?.readyState !== WebSocket.OPEN) return;
-      remoteStartPendingRef.current = true;
-      setPhase((current) => current === 'recovering' ? current : 'starting');
+      if (!config || socket?.readyState !== WebSocket.OPEN) return;
+      setPhase(phaseRef.current === 'recovering' ? 'recovering' : 'starting');
       setError('');
       socket.send(JSON.stringify({ type: 'translation.start', version: 1, config, recovery: phaseRef.current === 'recovering' }));
     };
     if (delay > 0) restartTimerRef.current = setTimeout(attempt, delay);
     else attempt();
-  }, [clearRestart]);
+  }, [clearRestart, setPhase]);
+
+  const handleFailure = useCallback((failure: { disposition: TranslationFailureDisposition; message: string }) => {
+    if (failure.disposition === 'retryable') {
+      if (!desiredConfigRef.current) {
+        setPhase('off');
+        setError('');
+        setWarning(failure.message);
+        return;
+      }
+      clearTimeout(healthyResetTimerRef.current);
+      setPhase('recovering');
+      setError('');
+      setWarning('Translation is reconnecting. Current speech will resume as soon as the provider is ready.');
+      setHealth((current) => ({ ...current, reconnectCount: current.reconnectCount + 1, recoveringSince: current.recoveringSince ?? Date.now() }));
+      requestRemoteStart(translationRetryDelay(restartAttemptRef.current++));
+      return;
+    }
+    desiredConfigRef.current = null;
+    clearRestart();
+    if (failure.disposition === 'degraded') {
+      setPhase('off');
+      setError('');
+      setWarning(failure.message || 'Translation ended with incomplete final output.');
+      void stopCapture(false);
+      return;
+    }
+    setPhase('blocked');
+    setError(failure.message || 'Live translation stopped with an error.');
+    startupRef.current?.abort();
+    void stopCapture(false);
+  }, [clearRestart, requestRemoteStart, setPhase, stopCapture]);
 
   useEffect(() => {
     if (!enabled || !presentationId) {
@@ -131,7 +158,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
     }
     let disposed = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
-    let connectionAttempt = 0;
     const sessionId = getSyncSession();
     clientIdRef.current ||= translationClientId();
     const connect = () => {
@@ -152,7 +178,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
           setConnected(true);
           if (!preferenceRef.current && message.defaultBackend) dispatch(setTranslationBackend(message.defaultBackend));
           if (desiredConfigRef.current) {
-            remoteStartPendingRef.current = false;
             requestRemoteStart();
           }
           return;
@@ -166,37 +191,11 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
           setOwnerSurface(message.producerSurface || '');
           if (message.phase === 'error') {
             runIdRef.current = '';
-            remoteStartPendingRef.current = false;
-            const disposition = message.disposition || translationFailureDisposition(message.code || 'provider_error');
-            if (desiredConfigRef.current && disposition === 'retryable') {
-              clearTimeout(healthyResetTimerRef.current);
-              setPhase('recovering');
-              setError('');
-              setWarning('Translation is reconnecting. Current speech will resume as soon as the provider is ready.');
-              setHealth((current) => ({ ...current, reconnectCount: current.reconnectCount + 1, recoveringSince: current.recoveringSince ?? Date.now() }));
-              requestRemoteStart(translationRetryDelay(restartAttemptRef.current++));
-            } else if (disposition === 'degraded') {
-              desiredConfigRef.current = null;
-              blockedRef.current = false;
-              clearRestart();
-              setPhase('off');
-              setError('');
-              setWarning(message.message || 'Translation ended with incomplete final output.');
-              void stopCapture(false);
-            } else {
-              desiredConfigRef.current = null;
-              blockedRef.current = true;
-              clearRestart();
-              setPhase('blocked');
-              setError(message.message || 'Live translation stopped with an error.');
-              startupRef.current?.abort();
-              void stopCapture(false);
-            }
+            handleFailure(message);
           } else if (message.phase === 'idle') {
             runIdRef.current = '';
-            remoteStartPendingRef.current = false;
             if (!desiredConfigRef.current) {
-              setPhase(blockedRef.current ? 'blocked' : 'off');
+              setPhase(phaseRef.current === 'blocked' ? 'blocked' : 'off');
               setOwnership('none');
               setOwnerSurface('');
               void stopCapture(false);
@@ -215,13 +214,11 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
         }
         if (message.type === 'translation.ready') {
           runIdRef.current = message.runId;
-          remoteStartPendingRef.current = false;
           sequenceRef.current = -1;
           setError('');
           setWarning('');
           void captureRef.current?.start().catch((reason: unknown) => {
             desiredConfigRef.current = null;
-            blockedRef.current = true;
             setPhase('blocked');
             setError(reason instanceof Error ? reason.message : 'The microphone could not start.');
             socket.close();
@@ -243,14 +240,10 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
           if (!healthyResetTimerRef.current) {
             healthyResetTimerRef.current = setTimeout(() => {
               restartAttemptRef.current = 0;
-              connectionAttempt = 0;
               healthyResetTimerRef.current = undefined;
             }, HEALTHY_RESET_MS);
           }
           setCaption(message);
-          if (message.stability === 'settled') {
-            setHistory((current) => [...current.filter((item) => item.runId !== message.runId || item.sequence !== message.sequence), message].slice(-HISTORY_LIMIT));
-          }
           return;
         }
         if (message.type === 'translation.cleared') {
@@ -266,22 +259,7 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
           return;
         }
         if (message.type === 'translation.error') {
-          remoteStartPendingRef.current = false;
-          if (desiredConfigRef.current && message.disposition === 'retryable') {
-            setPhase('recovering');
-            setError('');
-            setWarning('Translation is reconnecting. Current speech will resume as soon as the provider is ready.');
-            setHealth((current) => ({ ...current, reconnectCount: current.reconnectCount + 1, recoveringSince: current.recoveringSince ?? Date.now() }));
-            requestRemoteStart(translationRetryDelay(restartAttemptRef.current++));
-          } else {
-            desiredConfigRef.current = null;
-            blockedRef.current = true;
-            clearRestart();
-            setPhase('blocked');
-            setError(message.message);
-            startupRef.current?.abort();
-            void stopCapture(false);
-          }
+          handleFailure(message);
         }
       };
       socket.onerror = () => socket.close();
@@ -290,7 +268,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
         socketRef.current = null;
         setConnected(false);
         setCapabilities(null);
-        remoteStartPendingRef.current = false;
         clearRestart();
         if (desiredConfigRef.current) {
           clearTimeout(healthyResetTimerRef.current);
@@ -302,11 +279,11 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
         } else {
           startupRef.current?.abort();
           void stopCapture(false);
-          if (phaseRef.current !== 'off') setPhase(blockedRef.current ? 'blocked' : 'off');
+          if (phaseRef.current !== 'off' && phaseRef.current !== 'blocked') setPhase('off');
         }
         runIdRef.current = '';
         if (!disposed) {
-          retry = setTimeout(connect, translationRetryDelay(connectionAttempt++));
+          retry = setTimeout(connect, translationRetryDelay(restartAttemptRef.current++));
         }
       };
     };
@@ -317,7 +294,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
       clearTimeout(healthyResetTimerRef.current);
       clearRestart();
       desiredConfigRef.current = null;
-      remoteStartPendingRef.current = false;
       startupRef.current?.abort();
       startupRef.current = null;
       void stopCapture(false);
@@ -325,13 +301,12 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
       socketRef.current = null;
       runIdRef.current = '';
     };
-  }, [clearRestart, dispatch, enabled, presentationId, requestRemoteStart, stopCapture, surface]);
+  }, [clearRestart, dispatch, enabled, handleFailure, presentationId, requestRemoteStart, setPhase, stopCapture, surface]);
 
   const start = useCallback(async (config: TranslationConfig) => {
     if (!connected || !capabilities || ['starting', 'live', 'recovering', 'stopping'].includes(phaseRef.current)) return;
     const backend = capabilities.backends[config.backend];
     if (!backend?.configured) {
-      blockedRef.current = true;
       setPhase('blocked');
       setError(`Set ${backend?.missing.join(', ') || 'the provider environment variables'} in .env and restart ok-show.`);
       return;
@@ -339,7 +314,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
     const startup = new AbortController();
-    blockedRef.current = false;
     startupRef.current?.abort();
     startupRef.current = startup;
     setPhase('starting');
@@ -376,8 +350,6 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
         signal: startup.signal,
         onDeviceEnded: () => {
           desiredConfigRef.current = null;
-          blockedRef.current = true;
-          remoteStartPendingRef.current = false;
           clearRestart();
           setPhase('blocked');
           setError('The microphone device disconnected.');
@@ -394,11 +366,9 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
       }
       captureRef.current = capture;
       desiredConfigRef.current = config;
-      remoteStartPendingRef.current = false;
       requestRemoteStart();
     } catch (reason) {
       if (startup.signal.aborted) return;
-      blockedRef.current = true;
       setPhase('blocked');
       const name = reason instanceof DOMException ? reason.name : '';
       setError(name === 'NotAllowedError'
@@ -406,12 +376,10 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
         : reason instanceof Error ? reason.message : 'The microphone could not be prepared.');
       await stopCapture(false);
     }
-  }, [capabilities, clearRestart, connected, requestRemoteStart, stopCapture]);
+  }, [capabilities, clearRestart, connected, requestRemoteStart, setPhase, stopCapture]);
 
   const stop = useCallback(async () => {
-    blockedRef.current = false;
     desiredConfigRef.current = null;
-    remoteStartPendingRef.current = false;
     clearRestart();
     if (['starting', 'recovering'].includes(phaseRef.current) && !runIdRef.current) {
       startupRef.current?.abort();
@@ -428,12 +396,12 @@ export function useLiveTranslation({ presentationId, enabled = true, surface = '
     pacerRef.current?.clear();
     pacerRef.current = null;
     send({ type: 'translation.stop', version: 1, runId: runIdRef.current });
-  }, [clearRestart, send, stopCapture]);
+  }, [clearRestart, send, setPhase, stopCapture]);
 
   const clear = useCallback(() => {
     send({ type: 'translation.clear', version: 1 });
     setCaption(null);
   }, [send]);
 
-  return { phase, connected, capabilities, caption, history, error, warning, ownership, ownerSurface, health, start, stop, clear };
+  return { phase, connected, capabilities, caption, error, warning, ownership, ownerSurface, health, start, stop, clear };
 }

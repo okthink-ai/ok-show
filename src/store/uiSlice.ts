@@ -27,7 +27,6 @@ const DEFAULT_TALK_MINUTES = 40;
 interface TranslationPreferences {
   backend: TranslationBackend | '';
   sourceLanguage: TranslationLanguage;
-  targetLanguage: TranslationLanguage;
   captionsVisible: boolean;
   captionFontSize: number;
 }
@@ -35,7 +34,6 @@ interface TranslationPreferences {
 const DEFAULT_TRANSLATION_PREFERENCES: TranslationPreferences = {
   backend: '',
   sourceLanguage: 'en',
-  targetLanguage: 'es',
   captionsVisible: true,
   captionFontSize: 48,
 };
@@ -46,13 +44,10 @@ function loadTranslationPreferences(): TranslationPreferences {
     const backend = ['', 'openai-realtime', 'elevenlabs-scribe', 'elevenlabs-realtime'].includes(parsed?.backend ?? '')
       ? parsed?.backend ?? '' : '';
     const sourceLanguage = parsed?.sourceLanguage === 'es' ? 'es' : 'en';
-    const targetLanguage = parsed?.targetLanguage === sourceLanguage
-      ? (sourceLanguage === 'en' ? 'es' : 'en') : parsed?.targetLanguage === 'en' ? 'en' : 'es';
     const captionFontSize = Number(parsed?.captionFontSize);
     return {
       backend,
       sourceLanguage,
-      targetLanguage,
       captionsVisible: parsed?.captionsVisible !== false,
       captionFontSize: Number.isFinite(captionFontSize) ? Math.max(28, Math.min(72, captionFontSize)) : 48,
     };
@@ -290,7 +285,6 @@ const uiSlice = createSlice({
     },
     setTranslationSourceLanguage(state, action: PayloadAction<TranslationLanguage>) {
       state.translation.sourceLanguage = action.payload;
-      state.translation.targetLanguage = action.payload === 'en' ? 'es' : 'en';
     },
     setCaptionsVisible(state, action: PayloadAction<boolean>) {
       state.translation.captionsVisible = action.payload;

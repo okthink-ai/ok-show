@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, FC } from 'react';
-import { textDirection } from '../translation/captionState';
 import { recentCaptionLines } from '../translation/captionLayout';
 import type { CaptionSnapshot } from '../translation/protocol';
 import type { CaptionLayoutLine } from '../translation/captionLayout';
@@ -79,7 +78,7 @@ const LiveCaptionOverlay: FC<LiveCaptionOverlayProps> = ({ caption, visible, fon
       className={`live-caption-overlay${preview ? ' live-caption-overlay--preview' : ''}`}
       style={{ '--caption-font-size': `${fontSize}px` } as CSSProperties}
       lang={caption.targetLanguage}
-      dir={textDirection(caption.targetLanguage)}
+      dir="auto"
       data-stability={caption.stability}
     >
       <p ref={paragraphRef} aria-hidden="true"><span className="live-caption-overlay__text">{useMeasuredLines ? measuredText : caption.translatedText}</span></p>

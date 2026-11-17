@@ -6,11 +6,11 @@ import {
   keepRecentText,
   sanitizedProviderError,
   translationCapabilities,
+  translationFailureDisposition,
   validTranslationConfig,
   validTranslationId,
 } from './translation-protocol.mjs';
 import { createTranslationAdapters } from './translation/providers/index.mjs';
-import { translationFailureDisposition } from '../src/translation/failurePolicy.mjs';
 
 const MAX_PAYLOAD_BYTES = 24 * 1024;
 const MAX_MESSAGES_PER_SECOND = 30;
@@ -110,6 +110,10 @@ export function createTranslationService({
   const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_PAYLOAD_BYTES });
   const clientMeta = new WeakMap();
   const sessions = new Map();
+  const ownerFields = (state) => {
+    const owner = state.producer && clientMeta.get(state.producer);
+    return owner?.clientId ? { producerClientId: owner.clientId, producerSurface: owner.surface } : {};
+  };
 
   const noteAudioDrop = (state, run, reason) => {
     run.droppedAudioChunks += 1;
@@ -146,8 +150,6 @@ export function createTranslationService({
         latest: null,
         sourceText: '',
         status: 'idle',
-        producerClientId: '',
-        producerSurface: '',
         clearTimer: undefined,
         snapshotTimer: undefined,
         pendingSnapshot: null,
@@ -168,7 +170,7 @@ export function createTranslationService({
       presentationId: state.presentationId,
       phase,
       runId: state.run?.id,
-      ...(state.producerClientId ? { producerClientId: state.producerClientId, producerSurface: state.producerSurface } : {}),
+      ...ownerFields(state),
       ...extra,
     });
   };
@@ -251,8 +253,6 @@ export function createTranslationService({
     run.connection?.close();
     state.run = null;
     state.producer = null;
-    state.producerClientId = '';
-    state.producerSurface = '';
   };
   async function failRun(state, run, error) {
     if (state.run !== run) return;
@@ -271,6 +271,7 @@ export function createTranslationService({
     teardownRun(state, run);
     status(state, 'error', clean);
     clearCaption(state, clean.code);
+    status(state, 'idle');
   }
   const stopRun = async (state, run) => {
     if (state.run !== run || run.stopping) return;
@@ -338,9 +339,6 @@ export function createTranslationService({
       recovery: message.recovery === true,
     };
     state.producer = socket;
-    const owner = clientMeta.get(socket);
-    state.producerClientId = owner?.clientId || '';
-    state.producerSurface = owner?.surface || '';
     state.run = run;
     status(state, 'connecting', { backend: message.config.backend });
     log('connecting', { backend: message.config.backend, provider: backendProvider(message.config.backend), runId: run.id, recovery: run.recovery });
@@ -402,7 +400,7 @@ export function createTranslationService({
           type: 'translation.status', version: 1,
           sessionId: state.sessionId, presentationId: state.presentationId,
           phase: state.status, runId: state.run?.id,
-          ...(state.producerClientId ? { producerClientId: state.producerClientId, producerSurface: state.producerSurface } : {}),
+          ...ownerFields(state),
         });
         if (state.latest) send(socket, state.latest);
         return;
@@ -460,10 +458,7 @@ export function createTranslationService({
         teardownRun(meta.state, run);
         status(meta.state, 'error', failure('producer_disconnected', 'The microphone tab disconnected.'));
         clearCaption(meta.state, 'producer_disconnected');
-        // Existing viewers learn that the producer dropped, while a returning
-        // producer joins a restartable idle session instead of inheriting the
-        // stale error state.
-        meta.state.status = 'idle';
+        status(meta.state, 'idle');
       }
       if (!meta.state.clients.size && !meta.state.run && !meta.state.latest) sessions.delete(meta.state.key);
     });

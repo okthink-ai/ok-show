@@ -138,7 +138,7 @@ describe('useLiveTranslation continuity', () => {
     expect(result.current.phase).toBe('live');
 
     const startsBeforeFailure = second.sent.filter((message) => 'type' in message && message.type === 'translation.start').length;
-    act(() => second.message(status('error', { runId: 'run-2', code: 'provider_error', message: 'Temporary provider failure.' })));
+    act(() => second.message(status('error', { runId: 'run-2', code: 'provider_error', message: 'Temporary provider failure.', disposition: 'retryable' })));
     expect(result.current.phase).toBe('recovering');
     expect(result.current.error).toBe('');
     expect(mocks.captureStop).not.toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe('useLiveTranslation continuity', () => {
     });
     await act(async () => vi.advanceTimersByTimeAsync(10_000));
     const startsAfterHealthyRun = second.sent.filter((message) => 'type' in message && message.type === 'translation.start').length;
-    act(() => second.message(status('error', { runId: 'run-3', code: 'provider_error', message: 'Another temporary failure.' })));
+    act(() => second.message(status('error', { runId: 'run-3', code: 'provider_error', message: 'Another temporary failure.', disposition: 'retryable' })));
     await act(async () => vi.advanceTimersByTimeAsync(625));
     expect(second.sent.filter((message) => 'type' in message && message.type === 'translation.start')).toHaveLength(startsAfterHealthyRun + 1);
 

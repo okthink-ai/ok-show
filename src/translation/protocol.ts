@@ -38,9 +38,23 @@ export interface CaptionSnapshot {
   stability: 'streaming' | 'settled';
 }
 
+type TranslationStatusMessage = {
+  type: 'translation.status';
+  version: 1;
+  sessionId: string;
+  presentationId: string;
+  runId?: string;
+  backend?: TranslationBackend;
+  producerClientId?: string;
+  producerSurface?: 'deck' | 'presenter';
+} & (
+  | { phase: Exclude<TranslationPhase, 'error'> }
+  | { phase: 'error'; code: string; message: string; disposition: TranslationFailureDisposition }
+);
+
 export type TranslationServerMessage =
   | ({ type: 'translation.capabilities' } & TranslationCapabilities)
-  | { type: 'translation.status'; version: 1; sessionId: string; presentationId: string; phase: TranslationPhase; runId?: string; backend?: TranslationBackend; code?: string; message?: string; disposition?: TranslationFailureDisposition; producerClientId?: string; producerSurface?: 'deck' | 'presenter' }
+  | TranslationStatusMessage
   | { type: 'translation.ready'; version: 1; sessionId: string; presentationId: string; runId: string; sampleRate: 16000 | 24000; chunkDurationMs: 100 | 200 }
   | CaptionSnapshot
   | { type: 'translation.cleared'; version: 1; sessionId: string; presentationId: string; reason: string }
@@ -85,7 +99,10 @@ export function parseTranslationServerMessage(raw: string): TranslationServerMes
   }
   if (typeof message.sessionId !== 'string' || typeof message.presentationId !== 'string') return null;
   if (message.type === 'translation.status') {
-    return phases.includes(message.phase as TranslationPhase) ? message as unknown as TranslationServerMessage : null;
+    if (!phases.includes(message.phase as TranslationPhase)) return null;
+    if (message.phase === 'error' && !(typeof message.code === 'string' && typeof message.message === 'string'
+      && ['degraded', 'retryable', 'blocked'].includes(String(message.disposition)))) return null;
+    return message as unknown as TranslationServerMessage;
   }
   if (message.type === 'translation.ready') {
     return typeof message.runId === 'string'

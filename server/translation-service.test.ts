@@ -6,6 +6,7 @@ import WebSocket from 'ws';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createSyncServer } from './sync-server.mjs';
 import { translationConfigFromEnv } from './translation-service.mjs';
+import { keepRecentText, translationFailureDisposition } from './translation-protocol.mjs';
 
 type Server = ReturnType<typeof createSyncServer>;
 const servers: Server[] = [];
@@ -96,6 +97,14 @@ async function authenticate(socket: WebSocket, values: Partial<Record<string, un
 }
 
 describe('translation service', () => {
+  it('bounds caption text and classifies server failures', () => {
+    expect(keepRecentText(`old words ${'x'.repeat(300)}`)).toHaveLength(280);
+    expect(keepRecentText(`${'old '.repeat(100)}new ending`, 40)).toBe('old old old old old old old new ending');
+    expect(translationFailureDisposition('invalid_api_key')).toBe('blocked');
+    expect(translationFailureDisposition('finalization_timeout')).toBe('degraded');
+    expect(translationFailureDisposition('provider_timeout')).toBe('retryable');
+  });
+
   it('reads the default provider from TRANSLATION_PROVIDER', () => {
     expect(translationConfigFromEnv({
       TRANSLATION_PROVIDER: 'openai',

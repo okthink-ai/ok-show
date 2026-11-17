@@ -454,7 +454,7 @@ entitlement, configuration, and microphone-device failures still require the
 operator to fix the underlying problem. Stop flushes final microphone samples,
 waits up to 15 seconds for provider output, and holds the last caption for
 eight seconds. Clear removes it immediately. Captions retain a 280-character
-display window and at most 40 settled preview entries; audio and transcript
+display window; audio and transcript
 text are not written to `.speaker-sync/state.json` or default logs.
 
 Remote-phone microphone access requires HTTPS; browsers generally exempt
